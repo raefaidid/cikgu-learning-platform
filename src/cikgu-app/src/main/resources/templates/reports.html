@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main>
+    <h1>Reports</h1>
+    <p class="lead">Answers the platform's core questions: which modules perform best,
+        and which learners are behind schedule — no spreadsheets required.</p>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Top-performing modules — average progress score</h2>
+        <div class="chart-box">
+            <canvas id="topModulesChart"></canvas>
+        </div>
+        <details style="margin-top:0.75rem">
+            <summary class="muted">Show as table</summary>
+            <table>
+                <tr><th>Module</th><th class="num">Enrolled learners</th><th class="num">Avg progress</th></tr>
+                <tr th:each="m : ${topModules}">
+                    <td th:text="${m['moduleTitle']}">Module</td>
+                    <td class="num" th:text="${m['enrolledLearners']}">0</td>
+                    <td class="num" th:text="${m['avgProgress']} + '%'">0%</td>
+                </tr>
+            </table>
+        </details>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Learners behind schedule</h2>
+        <p class="muted">Enrollments whose linked goal's target date has passed while the
+            enrollment is not COMPLETED (from the <code>module_progress_v</code> view).</p>
+        <p class="muted" th:if="${#lists.isEmpty(behindSchedule)}">Nobody is behind schedule. 🎉</p>
+        <div class="table-scroll" th:unless="${#lists.isEmpty(behindSchedule)}">
+            <table>
+                <tr>
+                    <th>Learner</th><th>Module</th><th>Goal</th>
+                    <th>Target date</th><th>Progress</th><th>Status</th>
+                </tr>
+                <tr th:each="e : ${behindSchedule}">
+                    <td th:text="${e.learnerName}">Learner</td>
+                    <td th:text="${e.moduleTitle}">Module</td>
+                    <td th:text="${e.goalTitle}">Goal</td>
+                    <td th:text="${e.targetDate}">2026-01-01</td>
+                    <td>
+                        <span class="meter"><span th:style="'width:' + ${e.progressScore} + '%'"></span></span>
+                        <span class="meter-label" th:text="${#numbers.formatDecimal(e.progressScore,1,0)} + '%'">0%</span>
+                    </td>
+                    <td><span class="badge" th:classappend="${#strings.toLowerCase(e.status)}"
+                              th:text="${e.status}">STATUS</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script th:src="@{/js/chart.umd.min.js}"></script>
+    <script th:inline="javascript">
+        const labels = /*[[${chartLabels}]]*/ [];
+        const values = /*[[${chartValues}]]*/ [];
+
+        new Chart(document.getElementById('topModulesChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average progress',
+                    data: values,
+                    backgroundColor: '#2a78d6',
+                    borderRadius: { topRight: 4, bottomRight: 4 },
+                    barThickness: 14
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ' ' + ctx.parsed.x + '% average progress'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        min: 0, max: 100,
+                        title: { display: true, text: 'Average progress score (%)', color: '#52514e' },
+                        grid: { color: '#efeeea' },
+                        ticks: { color: '#52514e' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#0b0b0b', autoSkip: false }
+                    }
+                }
+            }
+        });
+    </script>
+</main>
+</body>
+</html>

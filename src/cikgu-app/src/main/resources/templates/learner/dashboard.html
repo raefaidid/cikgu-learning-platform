@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Learner Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main>
+    <h1>Welcome back, <span sec:authentication="principal.fullName">Learner</span></h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="stat-row">
+        <div class="stat">
+            <div class="n" th:text="${#lists.size(goals)}">0</div>
+            <div class="l">Goals</div>
+        </div>
+        <div class="stat">
+            <div class="n" th:text="${#lists.size(enrollments)}">0</div>
+            <div class="l">Enrollments</div>
+        </div>
+        <div class="stat">
+            <div class="n" th:text="${#lists.size(enrollments.?[status == 'COMPLETED'])}">0</div>
+            <div class="l">Completed</div>
+        </div>
+        <div class="stat">
+            <div class="n" th:text="${#lists.size(enrollments.?[behindSchedule])}">0</div>
+            <div class="l">Behind schedule</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">My goals</h2>
+            <p class="muted" th:if="${#lists.isEmpty(goals)}">
+                No goals yet — <a th:href="@{/learner/goals}">create your first goal</a>.
+            </p>
+            <table th:unless="${#lists.isEmpty(goals)}">
+                <tr><th>Goal</th><th>Target date</th></tr>
+                <tr th:each="g : ${goals}">
+                    <td th:text="${g.goalTitle}">Goal</td>
+                    <td th:text="${g.targetDate} ?: '—'">2026-01-01</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">My progress</h2>
+            <p class="muted" th:if="${#lists.isEmpty(enrollments)}">
+                Not enrolled yet — <a th:href="@{/learner/modules}">browse modules</a>.
+            </p>
+            <table th:unless="${#lists.isEmpty(enrollments)}">
+                <tr><th>Module</th><th>Progress</th><th>Status</th></tr>
+                <tr th:each="e : ${enrollments}">
+                    <td th:text="${e.moduleTitle}">Module</td>
+                    <td>
+                        <span class="meter"><span th:style="'width:' + ${e.progressScore} + '%'"></span></span>
+                        <span class="meter-label" th:text="${#numbers.formatDecimal(e.progressScore,1,0)} + '%'">0%</span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${#strings.toLowerCase(e.status)}"
+                              th:text="${e.status}">STATUS</span>
+                        <span class="badge behind" th:if="${e.behindSchedule}">BEHIND</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

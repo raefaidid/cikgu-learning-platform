@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Goals')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main>
+    <h1>My learning goals</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Add a goal</h2>
+        <form th:action="@{/learner/goals}" method="post">
+            <label for="goalTitle">Goal title</label>
+            <input type="text" id="goalTitle" name="goalTitle" maxlength="200" required>
+
+            <label for="targetOutcome">Target outcome (optional)</label>
+            <textarea id="targetOutcome" name="targetOutcome" maxlength="500" rows="2"></textarea>
+
+            <label for="targetDate">Target date (optional)</label>
+            <input type="date" id="targetDate" name="targetDate">
+
+            <button class="btn" type="submit">Create goal</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Existing goals</h2>
+        <p class="muted" th:if="${#lists.isEmpty(goals)}">No goals yet.</p>
+        <div class="table-scroll" th:unless="${#lists.isEmpty(goals)}">
+            <table>
+                <tr><th>Goal</th><th>Target outcome</th><th>Target date</th><th></th></tr>
+                <tr th:each="g : ${goals}">
+                    <td th:text="${g.goalTitle}">Goal</td>
+                    <td th:text="${g.targetOutcome} ?: '—'">Outcome</td>
+                    <td th:text="${g.targetDate} ?: '—'">2026-01-01</td>
+                    <td style="white-space:nowrap">
+                        <a class="btn small ghost" th:href="@{/learner/goals/{id}/edit(id=${g.goalId})}">Edit</a>
+                        <form class="inline" th:action="@{/learner/goals/{id}/delete(id=${g.goalId})}" method="post"
+                              onsubmit="return confirm('Delete this goal? Enrollments linked to it keep running, but lose the goal link.');">
+                            <button class="btn small danger" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

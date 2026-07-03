@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Profile')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main>
+    <h1>My profile</h1>
+    <p class="lead">The inheritance demo: this page joins your <code>app_user</code>
+        superclass row with your <code>learner</code>/<code>tutor</code> subclass row,
+        and saving updates both tables.</p>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Account (app_user)</h2>
+            <table>
+                <tr><th>Email</th><td th:text="${profile.email}">email</td></tr>
+                <tr><th>Account type</th><td><span class="badge in_progress" th:text="${profile.userType}">TYPE</span></td></tr>
+                <tr><th>Member since</th><td th:text="${profile.dateJoined}">2026-01-01</td></tr>
+                <tr th:if="${profile.userType == 'TUTOR'}">
+                    <th>Mentor</th><td th:text="${profile.mentorName} ?: 'none'">—</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">Edit profile</h2>
+            <form th:action="@{/profile}" method="post">
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" name="fullName" maxlength="150" required
+                       th:value="${profile.fullName}">
+
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" maxlength="30" th:value="${profile.phone}">
+
+                <th:block th:if="${profile.userType == 'LEARNER'}">
+                    <label for="educationBackground">Education background (learner)</label>
+                    <textarea id="educationBackground" name="educationBackground" maxlength="500" rows="2"
+                              th:text="${profile.educationBackground}"></textarea>
+
+                    <label for="parsedSkills">Skills (learner)</label>
+                    <input type="text" id="parsedSkills" name="parsedSkills" maxlength="1000"
+                           th:value="${profile.parsedSkills}">
+                </th:block>
+
+                <th:block th:if="${profile.userType == 'TUTOR'}">
+                    <label for="expertise">Expertise (tutor)</label>
+                    <input type="text" id="expertise" name="expertise" maxlength="300"
+                           th:value="${profile.expertise}">
+
+                    <label for="yearsExperience">Years of experience (tutor)</label>
+                    <input type="number" id="yearsExperience" name="yearsExperience" min="0" max="99"
+                           th:value="${profile.yearsExperience}">
+                </th:block>
+
+                <button class="btn" type="submit">Save profile</button>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

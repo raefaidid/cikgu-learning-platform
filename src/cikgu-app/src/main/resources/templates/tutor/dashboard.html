@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Tutor Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main>
+    <h1>Welcome back, <span sec:authentication="principal.fullName">Tutor</span></h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Modules I teach</h2>
+            <p class="muted" th:if="${#lists.isEmpty(modules)}">
+                No modules yet — <a th:href="@{/tutor/modules/new}">create one</a>.
+            </p>
+            <table th:unless="${#lists.isEmpty(modules)}">
+                <tr><th>Module</th><th>Difficulty</th><th>Lead</th></tr>
+                <tr th:each="m : ${modules}">
+                    <td th:text="${m.moduleTitle}">Module</td>
+                    <td><span class="badge" th:classappend="${#strings.toLowerCase(m.difficulty ?: '')}"
+                              th:text="${m.difficulty}">LEVEL</span></td>
+                    <td th:text="${m.leadTutorName}">Lead</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">My mentees</h2>
+            <p class="muted" th:if="${#lists.isEmpty(mentees)}">
+                You are not mentoring any tutors right now.
+            </p>
+            <table th:unless="${#lists.isEmpty(mentees)}">
+                <tr><th>Tutor</th><th>Expertise</th><th class="num">Years</th></tr>
+                <tr th:each="t : ${mentees}">
+                    <td th:text="${t.fullName}">Name</td>
+                    <td th:text="${t.expertise}">Expertise</td>
+                    <td class="num" th:text="${t.yearsExperience}">1</td>
+                </tr>
+            </table>
+            <p class="muted" style="margin-bottom:0">
+                Full reporting chain on the <a th:href="@{/tutor/mentorship}">mentorship page</a>.
+            </p>
+        </div>
+    </div>
+</main>
+</body>
+</html>
