@@ -5,7 +5,7 @@ Copy everything below the line into Fable as a single prompt.
 > **Historical record.** This is the prompt originally used to generate the
 > project's first implementation (Java/Spring Boot, per the "hard
 > constraints" below). That implementation was later replaced with a
-> Python/Django rewrite — see [`TECHNICAL_GUIDE.html`](TECHNICAL_GUIDE.html)
+> Python/Django rewrite — see [`index.html`](index.html)
 > and `src/cikgu-app-django/` for what's actually in the repo today. Kept
 > here unedited as a record of the original database design brief, which is
 > still accurate — only the application layer changed.

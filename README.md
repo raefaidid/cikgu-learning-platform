@@ -52,7 +52,7 @@ reporting view, and an ad hoc SQL console.
 
 | Read this... | ...if you want to |
 |---|---|
-| [`docs/TECHNICAL_GUIDE.html`](docs/TECHNICAL_GUIDE.html) | Understand the tech stack from scratch, run the system locally, and see what every page does (with a suggested presentation script) — HTML, open it in a browser |
+| [`docs/index.html`](docs/index.html) | Understand the tech stack from scratch, run the system locally, and see what every page does (with a suggested presentation script) — HTML, open it in a browser |
 | [`../../schema/cikgu/README.md`](../../schema/cikgu/README.md) | Install/uninstall the database schema directly |
 | [`../../schema/cikgu/data_dictionary.md`](../../schema/cikgu/data_dictionary.md) | Table/column reference for the report appendix |
 | [`src/cikgu-app-django/README.md`](src/cikgu-app-django/README.md) | Run the web app |
@@ -79,7 +79,7 @@ python manage.py runserver
 Open **http://localhost:8000** and log in with any seeded account — password
 `password123` for all of them (e.g. `halim.abdullah@cikgu.my`). Full
 instructions, troubleshooting, and login options are in
-[`docs/TECHNICAL_GUIDE.html`](docs/TECHNICAL_GUIDE.html).
+[`docs/index.html`](docs/index.html).
 
 ## Tech stack at a glance
 

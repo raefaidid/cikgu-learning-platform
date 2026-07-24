@@ -12,7 +12,7 @@ app never creates or manages a single database table beyond what
 
 For the full architecture writeup (request lifecycle, data-access layer,
 auth design, page-by-page walkthrough, demo script), see
-[`../../docs/TECHNICAL_GUIDE.html`](../../docs/TECHNICAL_GUIDE.html).
+[`../../docs/index.html`](../../docs/index.html).
 
 ## Prerequisites
 
@@ -78,7 +78,7 @@ cikguapp/
   console.py              Read-only SQL console service
   services.py             Multi-statement transaction demos
   repositories/            One module per table/bridge, hand-written SQL
-  views/                   One module per screen area (home, learner, tutor, profile, reports, console)
+  views/                   One module per original controller
   templates/cikguapp/      Django templates
   static/cikguapp/         CSS + Chart.js
 ```
