@@ -263,75 +263,39 @@
   .file-tree { font-size: 0.83rem; }
   .file-tree .comment { color: var(--ink-2); }
 
-  /* ---- ERD ---- */
-  .erd-wrap {
+  /* ---- diagram banners (ERD, flowchart) — Mermaid-rendered ---- */
+  .diagram-banner {
     background: var(--surface-2);
     border-bottom: 1px solid var(--line);
     padding: 2rem 1.5rem 2.5rem;
   }
-  .erd-wrap .wrap { max-width: 1120px; margin: 0 auto; }
-  .erd-wrap h2 { font-size: 1.4rem; margin: 0 0 0.4rem; }
-  .erd-wrap p.lead { margin-top: 0; }
-  .erd-svg-card {
-    background: var(--surface);
+  .diagram-banner + .diagram-banner { border-top: 1px solid var(--line); }
+  .diagram-banner .wrap { max-width: 1120px; margin: 0 auto; }
+  .diagram-banner h2 { font-size: 1.4rem; margin: 0 0 0.4rem; }
+  .diagram-banner p.lead { margin-top: 0; }
+
+  /* Fixed white background regardless of page theme: Mermaid's default
+     theme renders dark text with no background fill of its own, so the
+     card needs to stay light in both light and dark mode for contrast. */
+  .diagram-card {
+    background: #ffffff;
     border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.25rem;
     overflow-x: auto;
   }
-  .erd-svg-card svg { display: block; margin: 0 auto; min-width: 760px; }
+  .diagram-card .mermaid { display: flex; justify-content: center; }
+  .diagram-card svg { max-width: 100%; height: auto; background: transparent; }
 
-  .erd-box rect.erd-body { stroke-width: 1.5; }
-  .erd-box rect.erd-head { stroke-width: 1.5; }
-  .erd-box text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .erd-box text.erd-title { font-weight: 700; font-size: 12.5px; }
-  .erd-box text.erd-attr { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; fill: var(--ink); }
-  .erd-box text.erd-attr tspan.pk { font-weight: 700; }
-  .erd-box text.erd-attr tspan.fk { font-style: italic; }
-
-  .erd-box.superclass rect.erd-head, .erd-box.superclass rect.erd-body { fill: var(--nav-bg); stroke: var(--nav-bg); }
-  .erd-box.superclass text.erd-title { fill: #fff; }
-  .erd-box.superclass text.erd-attr { fill: #cdd9e8; }
-
-  .erd-box.learner rect.erd-head { fill: var(--accent); stroke: var(--accent); }
-  .erd-box.learner rect.erd-body { fill: var(--accent-tint); stroke: var(--accent); }
-  .erd-box.learner text.erd-title { fill: #fff; }
-
-  .erd-box.tutor rect.erd-head { fill: var(--erd-tutor); stroke: var(--erd-tutor); }
-  .erd-box.tutor rect.erd-body { fill: var(--erd-tutor-tint); stroke: var(--erd-tutor); }
-  .erd-box.tutor text.erd-title { fill: #fff; }
-
-  .erd-box.goal rect.erd-head { fill: var(--warn); stroke: var(--warn); }
-  .erd-box.goal rect.erd-body { fill: var(--warn-tint); stroke: var(--warn); }
-  .erd-box.goal text.erd-title { fill: #fff; }
-
-  .erd-box.module rect.erd-head { fill: var(--good); stroke: var(--good); }
-  .erd-box.module rect.erd-body { fill: var(--good-tint); stroke: var(--good); }
-  .erd-box.module text.erd-title { fill: #fff; }
-
-  .erd-box.bridge rect.erd-head { fill: var(--erd-bridge); stroke: var(--erd-bridge); }
-  .erd-box.bridge rect.erd-body { fill: var(--erd-bridge-tint); stroke: var(--erd-bridge); }
-  .erd-box.bridge text.erd-title { fill: #fff; }
-
-  .erd-line { fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
-  .erd-line.dashed { stroke-dasharray: 4 3; }
-  .erd-marker-line { stroke: var(--ink-2); stroke-width: 1.4; }
-  .erd-marker-circle { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.4; }
-  .erd-isa-circle { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.4; }
-  .erd-isa-label, .erd-rel-label { font-size: 10.5px; fill: var(--ink-2); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .erd-isa-label { font-weight: 700; font-size: 11px; }
-
-  .erd-legend { display: flex; flex-wrap: wrap; gap: 0.9rem 1.5rem; margin-top: 1rem; font-size: 0.82rem; color: var(--ink-2); }
-  .erd-legend .item { display: flex; align-items: center; gap: 0.45rem; }
-  .erd-legend .swatch { width: 13px; height: 13px; border-radius: 4px; display: inline-block; flex: none; }
-  .erd-legend .swatch.superclass { background: var(--nav-bg); }
-  .erd-legend .swatch.learner { background: var(--accent); }
-  .erd-legend .swatch.tutor { background: var(--erd-tutor); }
-  .erd-legend .swatch.goal { background: var(--warn); }
-  .erd-legend .swatch.module { background: var(--good); }
-  .erd-legend .swatch.bridge { background: var(--erd-bridge); }
-  .erd-legend .notation { display: flex; align-items: center; gap: 0.3rem; }
-  .erd-legend .notation svg { display: block; }
+  .diagram-legend { display: flex; flex-wrap: wrap; gap: 0.9rem 1.5rem; margin-top: 1rem; font-size: 0.82rem; color: var(--ink-2); }
+  .diagram-legend .item { display: flex; align-items: center; gap: 0.45rem; }
+  .diagram-legend .swatch { width: 13px; height: 13px; border-radius: 4px; display: inline-block; flex: none; }
+  .diagram-legend .swatch.superclass { background: var(--nav-bg); }
+  .diagram-legend .swatch.learner { background: var(--accent); }
+  .diagram-legend .swatch.tutor { background: var(--erd-tutor); }
+  .diagram-legend .swatch.goal { background: var(--warn); }
+  .diagram-legend .swatch.module { background: var(--good); }
+  .diagram-legend .swatch.bridge { background: var(--erd-bridge); }
 </style>
 </head>
 <body>
@@ -357,159 +321,92 @@
   </div>
 </header>
 
-<section class="erd-wrap" id="erd">
+<section class="diagram-banner" id="erd">
   <div class="wrap">
     <h2>Entity-Relationship Diagram</h2>
     <p class="lead">
       The seven tables of the <code>CIKGU</code> schema, colored by role:
       <strong>superclass</strong>, <strong>subclass</strong>,
       <strong>independent entity</strong>, and <strong>bridge entity</strong> —
-      the same categories the ERD rubric grades by name. Full column-level
-      detail is in <code>schema/cikgu/data_dictionary.md</code>; this is the
-      shape of the design.
+      the same categories the ERD rubric grades by name. Rendered with
+      <a href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html">Mermaid</a>
+      (bundled locally, see <code>docs/assets/mermaid.min.js</code>) so the
+      layout is computed automatically rather than hand-placed. Full
+      column-level detail is in <code>schema/cikgu/data_dictionary.md</code>;
+      this is the shape of the design.
     </p>
-    <div class="erd-svg-card">
-      <svg viewBox="0 0 1020 660" role="img" aria-label="Entity-relationship diagram of the CIKGU schema">
-        <defs>
-          <marker id="mOne" viewBox="0 0 12 12" markerWidth="11" markerHeight="11" refX="9" refY="6" orient="auto">
-            <line x1="9" y1="1" x2="9" y2="11" class="erd-marker-line"/>
-          </marker>
-          <marker id="mMany" viewBox="0 0 14 14" markerWidth="15" markerHeight="15" refX="12" refY="7" orient="auto">
-            <path d="M12,7 L0,1 M12,7 L0,7 M12,7 L0,13" class="erd-marker-line" fill="none"/>
-          </marker>
-          <marker id="mZeroOne" viewBox="0 0 22 14" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto">
-            <line x1="10" y1="1" x2="10" y2="13" class="erd-marker-line"/>
-            <circle cx="16.5" cy="7" r="3" class="erd-marker-circle"/>
-          </marker>
-          <marker id="mZeroMany" viewBox="0 0 22 14" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto">
-            <path d="M13,7 L1,1 M13,7 L1,7 M13,7 L1,13" class="erd-marker-line" fill="none"/>
-            <circle cx="16.5" cy="7" r="3" class="erd-marker-circle"/>
-          </marker>
-        </defs>
+    <div class="diagram-card">
+      <pre class="mermaid">
+erDiagram
+    APP_USER {
+        number user_id PK
+        string full_name
+        string email UK
+        string user_type
+    }
+    LEARNER {
+        number user_id "PK, FK"
+        string education_background
+        string parsed_skills
+    }
+    TUTOR {
+        number user_id "PK, FK"
+        number mentor_id "FK, self-referencing"
+        string expertise
+        number years_experience
+    }
+    GOAL {
+        number goal_id PK
+        number user_id FK
+        string goal_title
+        date target_date
+    }
+    MODULE {
+        number module_id PK
+        string module_title
+        string difficulty
+    }
+    ENROLLMENT {
+        number user_id "PK, FK"
+        number module_id "PK, FK"
+        number goal_id "FK, optional"
+        number progress_score
+        string status
+    }
+    MODULE_TUTOR {
+        number module_id "PK, FK"
+        number user_id "PK, FK"
+        string teaching_role
+    }
 
-        <!-- ===== connectors (drawn first, under the boxes) ===== -->
-        <!-- ISA: APP_USER -> LEARNER / TUTOR (disjoint specialization) -->
-        <path d="M515,114 L515,150" class="erd-line"/>
-        <circle cx="515" cy="150" r="9" class="erd-isa-circle"/>
-        <text x="515" y="153.5" text-anchor="middle" class="erd-isa-label">d</text>
-        <path d="M515,150 L247.5,150 L247.5,185" class="erd-line"/>
-        <path d="M515,150 L757.5,150 L757.5,185" class="erd-line"/>
-        <text x="527" y="146" class="erd-isa-label">ISA (disjoint)</text>
+    APP_USER ||--o| LEARNER : "is a"
+    APP_USER ||--o| TUTOR : "is a"
+    TUTOR |o..o{ TUTOR : mentors
+    LEARNER ||--o{ GOAL : defines
+    LEARNER ||--o{ ENROLLMENT : "enrolls in"
+    GOAL |o..o{ ENROLLMENT : guides
+    MODULE ||--o{ ENROLLMENT : receives
+    MODULE ||--o{ MODULE_TUTOR : "assigned via"
+    TUTOR ||--o{ MODULE_TUTOR : teaches
 
-        <!-- TUTOR self-loop: mentor_id (recursive) -->
-        <path d="M865,215 C915,215 915,260 865,260" class="erd-line dashed" marker-start="url(#mZeroOne)" marker-end="url(#mZeroMany)"/>
-        <text x="900" y="242" class="erd-rel-label">mentors</text>
+    classDef superclass fill:#10243c,stroke:#10243c,color:#ffffff
+    classDef learner fill:#e3edfa,stroke:#2a78d6,color:#0b0b0b
+    classDef tutor fill:#ece5fb,stroke:#6b46c1,color:#0b0b0b
+    classDef goalClass fill:#fdf2dc,stroke:#b45309,color:#0b0b0b
+    classDef moduleClass fill:#e8f6e8,stroke:#0ca30c,color:#0b0b0b
+    classDef bridge fill:#fbe7ef,stroke:#b23a68,color:#0b0b0b
 
-        <!-- LEARNER -> GOAL: "defines" -->
-        <path d="M200,265 L200,305 L117.5,305 L117.5,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
-        <text x="122" y="299" class="erd-rel-label">defines</text>
-
-        <!-- LEARNER -> ENROLLMENT: "enrolls in" -->
-        <path d="M295,265 L295,305 L365,305 L365,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
-        <text x="300" y="299" class="erd-rel-label">enrolls in</text>
-
-        <!-- GOAL -> ENROLLMENT: "guides" (optional, non-key FK) -->
-        <path d="M215,400 L250,400" class="erd-line dashed" marker-start="url(#mZeroOne)" marker-end="url(#mZeroMany)"/>
-        <text x="196" y="418" class="erd-rel-label">guides (optional)</text>
-
-        <!-- MODULE -> ENROLLMENT: "receives" -->
-        <path d="M400,455 L400,490 L580,490 L580,530" class="erd-line" marker-start="url(#mMany)" marker-end="url(#mOne)"/>
-        <text x="430" y="485" class="erd-rel-label">receives</text>
-
-        <!-- MODULE -> MODULE_TUTOR: "assigned via" -->
-        <path d="M872.5,425 L872.5,490 L655,490 L655,530" class="erd-line" marker-start="url(#mMany)" marker-end="url(#mOne)"/>
-        <text x="700" y="485" class="erd-rel-label">assigned via</text>
-
-        <!-- TUTOR -> MODULE_TUTOR: "teaches" -->
-        <path d="M800,279 L800,310 L872.5,310 L872.5,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
-        <text x="806" y="304" class="erd-rel-label">teaches</text>
-
-        <!-- ===== entity boxes ===== -->
-        <!-- APP_USER (superclass) -->
-        <g class="erd-box superclass">
-          <rect class="erd-head" x="405" y="20" width="220" height="24" rx="6"/>
-          <rect class="erd-body" x="405" y="44" width="220" height="70" rx="0"/>
-          <rect x="405" y="20" width="220" height="94" rx="6" fill="none" stroke="var(--nav-bg)"/>
-          <text x="515" y="36.5" text-anchor="middle" class="erd-title">APP_USER</text>
-          <text x="416" y="59" class="erd-attr"><tspan class="pk">user_id (PK)</tspan></text>
-          <text x="416" y="74" class="erd-attr">full_name</text>
-          <text x="416" y="89" class="erd-attr">email (UK)</text>
-          <text x="416" y="104" class="erd-attr">user_type</text>
-        </g>
-
-        <!-- LEARNER (subclass) -->
-        <g class="erd-box learner">
-          <rect class="erd-head" x="150" y="185" width="195" height="24" rx="6"/>
-          <rect class="erd-body" x="150" y="209" width="195" height="56" rx="0"/>
-          <rect x="150" y="185" width="195" height="80" rx="6" fill="none" stroke="var(--accent)"/>
-          <text x="247.5" y="201.5" text-anchor="middle" class="erd-title">LEARNER</text>
-          <text x="161" y="224" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
-          <text x="161" y="239" class="erd-attr">education_background</text>
-          <text x="161" y="254" class="erd-attr">parsed_skills</text>
-        </g>
-
-        <!-- TUTOR (subclass, recursive via mentor_id) -->
-        <g class="erd-box tutor">
-          <rect class="erd-head" x="650" y="185" width="215" height="24" rx="6"/>
-          <rect class="erd-body" x="650" y="209" width="215" height="70" rx="0"/>
-          <rect x="650" y="185" width="215" height="94" rx="6" fill="none" stroke="var(--erd-tutor)"/>
-          <text x="757.5" y="201.5" text-anchor="middle" class="erd-title">TUTOR</text>
-          <text x="661" y="224" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
-          <text x="661" y="239" class="erd-attr"><tspan class="fk">mentor_id (FK, self)</tspan></text>
-          <text x="661" y="254" class="erd-attr">expertise</text>
-          <text x="661" y="269" class="erd-attr">years_experience</text>
-        </g>
-
-        <!-- GOAL (entity) -->
-        <g class="erd-box goal">
-          <rect class="erd-head" x="20" y="345" width="195" height="24" rx="6"/>
-          <rect class="erd-body" x="20" y="369" width="195" height="70" rx="0"/>
-          <rect x="20" y="345" width="195" height="94" rx="6" fill="none" stroke="var(--warn)"/>
-          <text x="117.5" y="361.5" text-anchor="middle" class="erd-title">GOAL</text>
-          <text x="31" y="384" class="erd-attr"><tspan class="pk">goal_id (PK)</tspan></text>
-          <text x="31" y="399" class="erd-attr"><tspan class="fk">user_id (FK)</tspan></text>
-          <text x="31" y="414" class="erd-attr">goal_title</text>
-          <text x="31" y="429" class="erd-attr">target_date</text>
-        </g>
-
-        <!-- ENROLLMENT (bridge entity #1: LEARNER x MODULE) -->
-        <g class="erd-box bridge">
-          <rect class="erd-head" x="250" y="345" width="230" height="24" rx="6"/>
-          <rect class="erd-body" x="250" y="369" width="230" height="86" rx="0"/>
-          <rect x="250" y="345" width="230" height="110" rx="6" fill="none" stroke="var(--erd-bridge)"/>
-          <text x="365" y="361.5" text-anchor="middle" class="erd-title">ENROLLMENT</text>
-          <text x="261" y="384" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
-          <text x="261" y="399" class="erd-attr"><tspan class="pk fk">module_id (PK,FK)</tspan></text>
-          <text x="261" y="414" class="erd-attr"><tspan class="fk">goal_id (FK, optional)</tspan></text>
-          <text x="261" y="429" class="erd-attr">progress_score</text>
-          <text x="261" y="444" class="erd-attr">status</text>
-        </g>
-
-        <!-- MODULE_TUTOR (bridge entity #2: MODULE x TUTOR) -->
-        <g class="erd-box bridge">
-          <rect class="erd-head" x="760" y="345" width="225" height="24" rx="6"/>
-          <rect class="erd-body" x="760" y="369" width="225" height="56" rx="0"/>
-          <rect x="760" y="345" width="225" height="80" rx="6" fill="none" stroke="var(--erd-bridge)"/>
-          <text x="872.5" y="361.5" text-anchor="middle" class="erd-title">MODULE_TUTOR</text>
-          <text x="771" y="384" class="erd-attr"><tspan class="pk fk">module_id (PK,FK)</tspan></text>
-          <text x="771" y="399" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
-          <text x="771" y="414" class="erd-attr">teaching_role (LEAD/CO_TEACHER)</text>
-        </g>
-
-        <!-- MODULE (entity) -->
-        <g class="erd-box module">
-          <rect class="erd-head" x="520" y="530" width="195" height="24" rx="6"/>
-          <rect class="erd-body" x="520" y="554" width="195" height="56" rx="0"/>
-          <rect x="520" y="530" width="195" height="80" rx="6" fill="none" stroke="var(--good)"/>
-          <text x="617.5" y="546.5" text-anchor="middle" class="erd-title">MODULE</text>
-          <text x="531" y="569" class="erd-attr"><tspan class="pk">module_id (PK)</tspan></text>
-          <text x="531" y="584" class="erd-attr">module_title</text>
-          <text x="531" y="599" class="erd-attr">difficulty</text>
-        </g>
-      </svg>
+    class APP_USER superclass
+    class LEARNER learner
+    class TUTOR tutor
+    class GOAL goalClass
+    class MODULE moduleClass
+    class ENROLLMENT bridge
+    class MODULE_TUTOR bridge
+      </pre>
     </div>
 
-    <div class="erd-legend">
+    <div class="diagram-legend">
       <span class="item"><span class="swatch superclass"></span>Superclass — APP_USER</span>
       <span class="item"><span class="swatch learner"></span>Subclass — LEARNER</span>
       <span class="item"><span class="swatch tutor"></span>Subclass — TUTOR</span>
@@ -518,12 +415,96 @@
       <span class="item"><span class="swatch bridge"></span>Bridge entity — ENROLLMENT, MODULE_TUTOR</span>
     </div>
     <p class="lead" style="margin-top:0.6rem; font-size:0.85rem;">
-      <strong>Notation:</strong> <code>PK</code>/<code>FK</code> mark keys · a tick (|) = exactly one ·
-      a circle + tick = zero or one · a crow's foot (&lt;) = many · a circle + crow's foot = zero or many ·
-      a <strong>dashed</strong> line = optional/non-identifying relationship (nullable FK) ·
-      the <strong>d</strong> circle = disjoint specialization (ISA) — every <code>APP_USER</code> row is
-      <em>either</em> a <code>LEARNER</code> <em>or</em> a <code>TUTOR</code>, never both.
+      <strong>Notation:</strong> <code>PK</code>/<code>FK</code> mark keys ·
+      <code>||</code> = exactly one · <code>|o</code> = zero or one ·
+      <code>o{</code> = zero or many · a <strong>dotted</strong> line =
+      optional/non-identifying relationship (nullable FK) · <code>APP_USER
+      ||--o| LEARNER</code>/<code>TUTOR</code> models the disjoint
+      specialization — every <code>APP_USER</code> row is <em>either</em> a
+      <code>LEARNER</code> <em>or</em> a <code>TUTOR</code>, never both,
+      never neither.
     </p>
+  </div>
+</section>
+
+<section class="diagram-banner" id="flowchart">
+  <div class="wrap">
+    <h2>System Flowchart</h2>
+    <p class="lead">
+      The whole system in one flow — from opening the app through both the
+      Learner and Tutor paths to logging out — for the report's "Flow Chart
+      of System" appendix. Same Mermaid setup as the ERD above, colored the
+      same way: <strong>blue</strong> for the learner path,
+      <strong>purple</strong> for the tutor path.
+    </p>
+    <div class="diagram-card">
+      <pre class="mermaid">
+flowchart TD
+    Start(["Start"]) --> Visit["Open Cikgu in a browser"]
+    Visit --> LoggedIn{"Logged in?"}
+
+    LoggedIn -- No --> AuthChoice{"Register or log in?"}
+    AuthChoice -- Register --> RegForm["Register: pick Learner or Tutor, fill in the form"]
+    RegForm --> RegTxn[["Insert APP_USER + subclass row in one transaction"]]
+    RegTxn --> LoginForm["Log in form"]
+    AuthChoice -- "Log in" --> LoginForm
+    LoginForm --> Credentials{"Valid credentials?"}
+    Credentials -- No --> LoginForm
+    Credentials -- Yes --> RoleCheck{"Learner or Tutor account?"}
+    LoggedIn -- Yes --> RoleCheck
+
+    RoleCheck -- Learner --> LDash["Learner Dashboard"]
+    RoleCheck -- Tutor --> TDash["Tutor Dashboard"]
+
+    LDash --> LGoals["Manage Goals: create / edit / delete"]
+    LDash --> LBrowse["Browse Modules"]
+    LBrowse --> LEnroll["Enroll, optionally linked to a Goal"]
+    LDash --> LEnrollments["My Enrollments: track progress / cancel"]
+    LDash --> LProfile["Edit Profile"]
+
+    TDash --> TModules["Manage Modules: create / edit / delete"]
+    TModules --> TCoteach["Manage Co-teachers"]
+    TDash --> TProgress["Update Learner Progress"]
+    TDash --> TMentor["Mentorship: view tree / set mentor"]
+    TDash --> TProfile["Edit Profile"]
+
+    LDash --> Shared["Reports  /  SQL Console"]
+    TDash --> Shared
+
+    LGoals --> Logout(["Log out"])
+    LEnroll --> Logout
+    LEnrollments --> Logout
+    LProfile --> Logout
+    TCoteach --> Logout
+    TProgress --> Logout
+    TMentor --> Logout
+    TProfile --> Logout
+    Shared --> Logout
+    Logout --> End(["End"])
+
+    classDef terminal fill:#10243c,stroke:#10243c,color:#ffffff
+    classDef decision fill:#fdf2dc,stroke:#b45309,color:#0b0b0b
+    classDef learnerNode fill:#e3edfa,stroke:#2a78d6,color:#0b0b0b
+    classDef tutorNode fill:#ece5fb,stroke:#6b46c1,color:#0b0b0b
+    classDef sharedNode fill:#e8f6e8,stroke:#0ca30c,color:#0b0b0b
+    classDef txnNode fill:#fbe7ef,stroke:#b23a68,color:#0b0b0b
+
+    class Start,End,Logout terminal
+    class LoggedIn,AuthChoice,Credentials,RoleCheck decision
+    class RegTxn txnNode
+    class LDash,LGoals,LBrowse,LEnroll,LEnrollments,LProfile learnerNode
+    class TDash,TModules,TCoteach,TProgress,TMentor,TProfile tutorNode
+    class Shared sharedNode
+      </pre>
+    </div>
+    <div class="diagram-legend">
+      <span class="item"><span class="swatch superclass"></span>Start / End / Log out</span>
+      <span class="item"><span class="swatch goal"></span>Decision point</span>
+      <span class="item"><span class="swatch learner"></span>Learner path</span>
+      <span class="item"><span class="swatch tutor"></span>Tutor path</span>
+      <span class="item"><span class="swatch bridge"></span>Transaction (Insert)</span>
+      <span class="item"><span class="swatch module"></span>Shared (both roles)</span>
+    </div>
   </div>
 </section>
 
@@ -532,6 +513,7 @@
     <div class="toc-title">On this page</div>
     <ol>
       <li><a href="#erd">ERD</a></li>
+      <li><a href="#flowchart">System Flowchart</a></li>
       <li><a href="#overview">1. Overview</a></li>
       <li><a href="#architecture">2. Architecture</a></li>
       <li><a href="#stack">3. Tech stack</a></li>
@@ -1378,5 +1360,9 @@ ROLLBACK;
   </div>
 </footer>
 
+<script src="assets/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "default", securityLevel: "strict" });
+</script>
 </body>
 </html>
