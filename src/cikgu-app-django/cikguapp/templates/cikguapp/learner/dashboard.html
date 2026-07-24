@@ -1,0 +1,68 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Learner Dashboard{% endblock %}
+{% block content %}
+    <h1>Welcome back, {{ cikgu_user.full_name }}</h1>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="stat-row">
+        <div class="stat">
+            <div class="n">{{ goals|length }}</div>
+            <div class="l">Goals</div>
+        </div>
+        <div class="stat">
+            <div class="n">{{ enrollments|length }}</div>
+            <div class="l">Enrollments</div>
+        </div>
+        <div class="stat">
+            <div class="n">{{ completed_count }}</div>
+            <div class="l">Completed</div>
+        </div>
+        <div class="stat">
+            <div class="n">{{ behind_count }}</div>
+            <div class="l">Behind schedule</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">My goals</h2>
+            {% if not goals %}
+                <p class="muted">No goals yet — <a href="{% url 'learner_goals' %}">create your first goal</a>.</p>
+            {% else %}
+                <table>
+                    <tr><th>Goal</th><th>Target date</th></tr>
+                    {% for g in goals %}
+                        <tr>
+                            <td>{{ g.goal_title }}</td>
+                            <td>{{ g.target_date|date:"Y-m-d"|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">My progress</h2>
+            {% if not enrollments %}
+                <p class="muted">Not enrolled yet — <a href="{% url 'learner_modules' %}">browse modules</a>.</p>
+            {% else %}
+                <table>
+                    <tr><th>Module</th><th>Progress</th><th>Status</th></tr>
+                    {% for e in enrollments %}
+                        <tr>
+                            <td>{{ e.module_title }}</td>
+                            <td>
+                                <span class="meter"><span style="width:{{ e.progress_score }}%"></span></span>
+                                <span class="meter-label">{{ e.progress_score|floatformat:0 }}%</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ e.status|lower }}">{{ e.status }}</span>
+                                {% if e.behind_schedule %}<span class="badge behind">BEHIND</span>{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

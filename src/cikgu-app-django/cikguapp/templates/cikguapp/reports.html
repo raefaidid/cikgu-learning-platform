@@ -1,0 +1,105 @@
+{% extends "cikguapp/base.html" %}
+{% load static %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+    <h1>Reports</h1>
+    <p class="lead">Answers the platform's core questions: which modules perform best,
+        and which learners are behind schedule — no spreadsheets required.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        <h2 style="margin-top:0">Top-performing modules — average progress score</h2>
+        <div class="chart-box">
+            <canvas id="topModulesChart"></canvas>
+        </div>
+        <details style="margin-top:0.75rem">
+            <summary class="muted">Show as table</summary>
+            <table>
+                <tr><th>Module</th><th class="num">Enrolled learners</th><th class="num">Avg progress</th></tr>
+                {% for m in top_modules %}
+                    <tr>
+                        <td>{{ m.module_title }}</td>
+                        <td class="num">{{ m.enrolled_learners }}</td>
+                        <td class="num">{{ m.avg_progress }}%</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </details>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Learners behind schedule</h2>
+        <p class="muted">Enrollments whose linked goal's target date has passed while the
+            enrollment is not COMPLETED (from the <code>module_progress_v</code> view).</p>
+        {% if not behind_schedule %}
+            <p class="muted">Nobody is behind schedule. 🎉</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>Learner</th><th>Module</th><th>Goal</th>
+                        <th>Target date</th><th>Progress</th><th>Status</th>
+                    </tr>
+                    {% for e in behind_schedule %}
+                        <tr>
+                            <td>{{ e.learner_name }}</td>
+                            <td>{{ e.module_title }}</td>
+                            <td>{{ e.goal_title }}</td>
+                            <td>{{ e.target_date|date:"Y-m-d" }}</td>
+                            <td>
+                                <span class="meter"><span style="width:{{ e.progress_score }}%"></span></span>
+                                <span class="meter-label">{{ e.progress_score|floatformat:0 }}%</span>
+                            </td>
+                            <td><span class="badge {{ e.status|lower }}">{{ e.status }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ chart_data|json_script:"chart-data" }}
+    <script src="{% static 'cikguapp/js/chart.umd.min.js' %}"></script>
+    <script>
+        const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+
+        new Chart(document.getElementById('topModulesChart'), {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Average progress',
+                    data: chartData.values,
+                    backgroundColor: '#2a78d6',
+                    borderRadius: { topRight: 4, bottomRight: 4 },
+                    barThickness: 14
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ' ' + ctx.parsed.x + '% average progress'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        min: 0, max: 100,
+                        title: { display: true, text: 'Average progress score (%)', color: '#52514e' },
+                        grid: { color: '#efeeea' },
+                        ticks: { color: '#52514e' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#0b0b0b', autoSkip: false }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

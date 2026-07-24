@@ -1,0 +1,59 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Browse Modules{% endblock %}
+{% block content %}
+    <h1>Browse modules</h1>
+    <p class="lead">Enroll in a module and optionally link it to one of your goals.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        <form class="inline" action="{% url 'learner_modules' %}" method="get">
+            <input type="text" name="q" placeholder="Search title…" value="{{ q }}">
+            <select name="difficulty">
+                <option value="" {% if not difficulty %}selected{% endif %}>All difficulties</option>
+                <option value="BEGINNER" {% if difficulty == 'BEGINNER' %}selected{% endif %}>Beginner</option>
+                <option value="INTERMEDIATE" {% if difficulty == 'INTERMEDIATE' %}selected{% endif %}>Intermediate</option>
+                <option value="ADVANCED" {% if difficulty == 'ADVANCED' %}selected{% endif %}>Advanced</option>
+            </select>
+            <button class="btn small" type="submit">Filter</button>
+        </form>
+    </div>
+
+    <div class="card">
+        {% if not modules %}
+            <p class="muted">No modules match your filter.</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>Module</th><th>Difficulty</th><th class="num">Hours</th>
+                        <th>Lead tutor</th><th>Enroll</th>
+                    </tr>
+                    {% for m in modules %}
+                        <tr>
+                            <td>
+                                <strong>{{ m.module_title }}</strong><br>
+                                <span class="muted">{{ m.description }}</span>
+                            </td>
+                            <td><span class="badge {{ m.difficulty|default:''|lower }}">{{ m.difficulty }}</span></td>
+                            <td class="num">{{ m.duration_hours|default:"—" }}</td>
+                            <td>{{ m.lead_tutor_name|default:"—" }}</td>
+                            <td>
+                                <form class="inline" action="{% url 'learner_enroll' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="moduleId" value="{{ m.module_id }}">
+                                    <select name="goalId">
+                                        <option value="">No linked goal</option>
+                                        {% for g in my_goals %}
+                                            <option value="{{ g.goal_id }}">{{ g.goal_title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn small" type="submit">Enroll</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

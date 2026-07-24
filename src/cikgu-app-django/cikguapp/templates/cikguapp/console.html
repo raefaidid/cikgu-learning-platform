@@ -1,0 +1,41 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}SQL Console{% endblock %}
+{% block content %}
+    <h1>Ad hoc SQL console</h1>
+    <p class="lead">Run a read-only <code>SELECT</code> against the CIKGU schema
+        (tables: <code>app_user</code>, <code>learner</code>, <code>tutor</code>, <code>goal</code>,
+        <code>module</code>, <code>module_tutor</code>, <code>enrollment</code>,
+        view <code>module_progress_v</code>). Results are capped at 200 rows.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        <form action="{% url 'console' %}" method="post">
+            {% csrf_token %}
+            <label for="sql">SELECT statement</label>
+            <textarea class="sql" id="sql" name="sql" spellcheck="false">{{ sql }}</textarea>
+            <button class="btn" type="submit">Run query</button>
+        </form>
+    </div>
+
+    {% if console_error %}
+        <div class="flash err">{{ console_error }}</div>
+    {% endif %}
+
+    {% if result %}
+        <div class="card">
+            <h2 style="margin-top:0">{{ result.row_count }} row(s)</h2>
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        {% for c in result.columns %}<th>{{ c }}</th>{% endfor %}
+                    </tr>
+                    {% for row in result.rows %}
+                        <tr>
+                            {% for cell in row %}<td>{{ cell|default:"—" }}</td>{% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

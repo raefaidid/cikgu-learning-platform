@@ -1,0 +1,54 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Co-teachers{% endblock %}
+{% block content %}
+    <h1>Teaching team — {{ module.module_title }}</h1>
+    <p class="lead">The MODULE_TUTOR bridge in action: a module has exactly one LEAD
+        (enforced by a unique index in the database) and any number of co-teachers.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Current teaching team</h2>
+            <table>
+                <tr><th>Tutor</th><th>Expertise</th><th>Role</th><th>Assigned</th><th></th></tr>
+                {% for t in teachers %}
+                    <tr>
+                        <td>{{ t.tutor_name }}</td>
+                        <td>{{ t.expertise }}</td>
+                        <td><span class="badge {{ t.teaching_role|lower }}">{{ t.teaching_role }}</span></td>
+                        <td>{{ t.assigned_date|date:"Y-m-d" }}</td>
+                        <td>
+                            {% if t.teaching_role == 'CO_TEACHER' %}
+                                <form class="inline" action="{% url 'tutor_remove_co_teacher' module.module_id t.user_id %}"
+                                      method="post" onsubmit="return confirm('Remove this co-teacher from the module?');">
+                                    {% csrf_token %}
+                                    <button class="btn small danger" type="submit">Remove</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">Add a co-teacher</h2>
+            {% if not candidates %}
+                <p class="muted">Every tutor is already on this module.</p>
+            {% else %}
+                <form action="{% url 'tutor_co_teachers' module.module_id %}" method="post">
+                    {% csrf_token %}
+                    <label for="tutorId">Tutor</label>
+                    <select id="tutorId" name="tutorId">
+                        {% for c in candidates %}
+                            <option value="{{ c.user_id }}">{{ c.full_name }}{% if c.expertise %} — {{ c.expertise }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn" type="submit">Add as co-teacher</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <a class="btn ghost" href="{% url 'tutor_modules' %}">← Back to my modules</a>
+{% endblock %}

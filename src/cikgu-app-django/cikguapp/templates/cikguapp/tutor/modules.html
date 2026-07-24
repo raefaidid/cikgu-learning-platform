@@ -1,0 +1,42 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}My Modules{% endblock %}
+{% block content %}
+    <h1>My modules</h1>
+    <p class="lead">Modules you lead or co-teach. <a class="btn small" href="{% url 'tutor_new_module' %}">+ New module</a></p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        {% if not modules %}
+            <p class="muted">You are not assigned to any module yet.</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>Module</th><th>Difficulty</th><th class="num">Hours</th>
+                        <th>Lead tutor</th><th></th>
+                    </tr>
+                    {% for m in modules %}
+                        <tr>
+                            <td>
+                                <strong>{{ m.module_title }}</strong><br>
+                                <span class="muted">{{ m.description }}</span>
+                            </td>
+                            <td><span class="badge {{ m.difficulty|default:''|lower }}">{{ m.difficulty }}</span></td>
+                            <td class="num">{{ m.duration_hours|default:"—" }}</td>
+                            <td>{{ m.lead_tutor_name|default:"—" }}</td>
+                            <td style="white-space:nowrap">
+                                <a class="btn small ghost" href="{% url 'tutor_module_edit' m.module_id %}">Edit</a>
+                                <a class="btn small ghost" href="{% url 'tutor_co_teachers' m.module_id %}">Co-teachers</a>
+                                <form class="inline" action="{% url 'tutor_module_delete' m.module_id %}" method="post"
+                                      onsubmit="return confirm('Delete this module? All enrollments and tutor assignments are removed by cascading foreign keys.');">
+                                    {% csrf_token %}
+                                    <button class="btn small danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

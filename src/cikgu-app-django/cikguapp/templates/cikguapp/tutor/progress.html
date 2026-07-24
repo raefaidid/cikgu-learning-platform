@@ -1,0 +1,50 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Learner Progress{% endblock %}
+{% block content %}
+    <h1>Learner progress</h1>
+    <p class="lead">Learners enrolled in modules you lead or co-teach. Saving a row
+        fires the database trigger that stamps <code>last_updated_at</code>.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        {% if not enrollments %}
+            <p class="muted">No learners are enrolled in your modules yet.</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>Module</th><th>Learner</th><th>Goal</th>
+                        <th>Last updated</th><th>Progress / status</th>
+                    </tr>
+                    {% for e in enrollments %}
+                        <tr>
+                            <td>{{ e.module_title }}</td>
+                            <td>
+                                {{ e.learner_name }}
+                                {% if e.behind_schedule %}<span class="badge behind">BEHIND</span>{% endif %}
+                            </td>
+                            <td>{{ e.goal_title|default:"—" }}</td>
+                            <td>{{ e.last_updated_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                            <td>
+                                <form class="inline" action="{% url 'tutor_update_progress' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="learnerId" value="{{ e.user_id }}">
+                                    <input type="hidden" name="moduleId" value="{{ e.module_id }}">
+                                    <input type="number" name="progressScore" min="0" max="100" step="0.5"
+                                           style="width:5.5rem" value="{{ e.progress_score }}">
+                                    <select name="status">
+                                        <option value="NOT_STARTED" {% if e.status == 'NOT_STARTED' %}selected{% endif %}>Not started</option>
+                                        <option value="IN_PROGRESS" {% if e.status == 'IN_PROGRESS' %}selected{% endif %}>In progress</option>
+                                        <option value="COMPLETED" {% if e.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                        <option value="DROPPED" {% if e.status == 'DROPPED' %}selected{% endif %}>Dropped</option>
+                                    </select>
+                                    <button class="btn small" type="submit">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+    <h1>My profile</h1>
+    <p class="lead">The inheritance demo: this page joins your <code>app_user</code>
+        superclass row with your <code>learner</code>/<code>tutor</code> subclass row,
+        and saving updates both tables.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Account (app_user)</h2>
+            <table>
+                <tr><th>Email</th><td>{{ profile.email }}</td></tr>
+                <tr><th>Account type</th><td><span class="badge in_progress">{{ profile.user_type }}</span></td></tr>
+                <tr><th>Member since</th><td>{{ profile.date_joined|date:"Y-m-d" }}</td></tr>
+                {% if profile.user_type == 'TUTOR' %}
+                    <tr><th>Mentor</th><td>{{ profile.mentor_name|default:"none" }}</td></tr>
+                {% endif %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">Edit profile</h2>
+            <form action="{% url 'profile' %}" method="post">
+                {% csrf_token %}
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" name="fullName" maxlength="150" required
+                       value="{{ profile.full_name }}">
+
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" maxlength="30" value="{{ profile.phone|default:'' }}">
+
+                {% if profile.user_type == 'LEARNER' %}
+                    <label for="educationBackground">Education background (learner)</label>
+                    <textarea id="educationBackground" name="educationBackground" maxlength="500"
+                              rows="2">{{ profile.education_background }}</textarea>
+
+                    <label for="parsedSkills">Skills (learner)</label>
+                    <input type="text" id="parsedSkills" name="parsedSkills" maxlength="1000"
+                           value="{{ profile.parsed_skills|default:'' }}">
+                {% endif %}
+
+                {% if profile.user_type == 'TUTOR' %}
+                    <label for="expertise">Expertise (tutor)</label>
+                    <input type="text" id="expertise" name="expertise" maxlength="300"
+                           value="{{ profile.expertise|default:'' }}">
+
+                    <label for="yearsExperience">Years of experience (tutor)</label>
+                    <input type="number" id="yearsExperience" name="yearsExperience" min="0" max="99"
+                           value="{{ profile.years_experience|default:'' }}">
+                {% endif %}
+
+                <button class="btn" type="submit">Save profile</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Edit Module{% endblock %}
+{% block content %}
+    <h1>Edit module</h1>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card" style="max-width:560px">
+        <form action="{% url 'tutor_module_edit' module.module_id %}" method="post">
+            {% csrf_token %}
+            <label for="moduleTitle">Module title</label>
+            <input type="text" id="moduleTitle" name="moduleTitle" maxlength="200" required
+                   value="{{ module.module_title }}">
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" maxlength="1000" rows="3">{{ module.description }}</textarea>
+
+            <label for="durationHours">Duration (hours)</label>
+            <input type="number" id="durationHours" name="durationHours" min="1" max="99999"
+                   value="{{ module.duration_hours|default:'' }}">
+
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty" name="difficulty">
+                <option value="BEGINNER" {% if module.difficulty == 'BEGINNER' %}selected{% endif %}>Beginner</option>
+                <option value="INTERMEDIATE" {% if module.difficulty == 'INTERMEDIATE' %}selected{% endif %}>Intermediate</option>
+                <option value="ADVANCED" {% if module.difficulty == 'ADVANCED' %}selected{% endif %}>Advanced</option>
+            </select>
+
+            <button class="btn" type="submit">Save changes</button>
+            <a class="btn ghost" href="{% url 'tutor_modules' %}">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

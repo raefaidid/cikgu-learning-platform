@@ -1,0 +1,53 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Mentorship{% endblock %}
+{% block content %}
+    <h1>Tutor mentorship hierarchy</h1>
+    <p class="lead">The recursive relationship demo: <code>tutor.mentor_id → tutor.user_id</code>,
+        rendered with an Oracle <code>CONNECT BY PRIOR</code> query showing the full reporting chain.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Full mentorship tree</h2>
+            <div class="table-scroll">
+                <table>
+                    <tr><th>Tutor (indent = mentorship depth)</th><th class="num">Level</th><th class="num">Years</th></tr>
+                    {% for t in hierarchy %}
+                        <tr>
+                            <td>
+                                <span class="tree-indent">{{ t.indent }}</span>
+                                <strong>{{ t.full_name }}</strong>
+                                {% if t.expertise %}<span class="muted"> — {{ t.expertise }}</span>{% endif %}
+                            </td>
+                            <td class="num">{{ t.tree_level }}</td>
+                            <td class="num">{{ t.years_experience }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">My mentor</h2>
+            <p>
+                Current mentor:
+                <strong>{{ me.mentor_name|default:"none" }}</strong>
+            </p>
+            <form action="{% url 'tutor_set_mentor' %}" method="post">
+                {% csrf_token %}
+                <label for="mentorId">Choose a mentor</label>
+                <select id="mentorId" name="mentorId">
+                    <option value="">— No mentor —</option>
+                    {% for c in candidates %}
+                        <option value="{{ c.user_id }}" {% if me.mentor_id == c.user_id %}selected{% endif %}>
+                            {{ c.full_name }}{% if c.expertise %} — {{ c.expertise }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="muted">Tutors in your own mentee subtree are excluded — assigning
+                    one of them would create a cycle in the hierarchy.</p>
+                <button class="btn" type="submit">Save mentor</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

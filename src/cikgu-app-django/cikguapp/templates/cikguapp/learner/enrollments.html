@@ -1,0 +1,48 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}My Enrollments{% endblock %}
+{% block content %}
+    <h1>My enrollments</h1>
+    <p class="lead">Progress and status are updated by your tutors; the database
+        stamps <code>last_updated_at</code> automatically on every change.</p>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        {% if not enrollments %}
+            <p class="muted">You are not enrolled in any module yet — <a href="{% url 'learner_modules' %}">browse modules</a>.</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr>
+                        <th>Module</th><th>Linked goal</th><th>Enrolled</th>
+                        <th>Progress</th><th>Status</th><th>Last updated</th><th></th>
+                    </tr>
+                    {% for e in enrollments %}
+                        <tr>
+                            <td>{{ e.module_title }}</td>
+                            <td>
+                                {{ e.goal_title|default:"—" }}
+                                {% if e.behind_schedule %}
+                                    <span class="badge behind" title="Goal target date {{ e.target_date|date:'Y-m-d' }} has passed">BEHIND</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ e.enroll_date|date:"Y-m-d" }}</td>
+                            <td>
+                                <span class="meter"><span style="width:{{ e.progress_score }}%"></span></span>
+                                <span class="meter-label">{{ e.progress_score|floatformat:0 }}%</span>
+                            </td>
+                            <td><span class="badge {{ e.status|lower }}">{{ e.status }}</span></td>
+                            <td>{{ e.last_updated_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                            <td>
+                                <form class="inline" action="{% url 'learner_enrollment_drop' e.module_id %}" method="post"
+                                      onsubmit="return confirm('Cancel this enrollment? This removes the record entirely.');">
+                                    {% csrf_token %}
+                                    <button class="btn small danger" type="submit">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

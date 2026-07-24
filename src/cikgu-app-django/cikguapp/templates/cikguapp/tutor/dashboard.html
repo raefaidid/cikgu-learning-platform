@@ -1,0 +1,47 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Tutor Dashboard{% endblock %}
+{% block content %}
+    <h1>Welcome back, {{ cikgu_user.full_name }}</h1>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="grid-2">
+        <div class="card">
+            <h2 style="margin-top:0">Modules I teach</h2>
+            {% if not modules %}
+                <p class="muted">No modules yet — <a href="{% url 'tutor_new_module' %}">create one</a>.</p>
+            {% else %}
+                <table>
+                    <tr><th>Module</th><th>Difficulty</th><th>Lead</th></tr>
+                    {% for m in modules %}
+                        <tr>
+                            <td>{{ m.module_title }}</td>
+                            <td><span class="badge {{ m.difficulty|default:''|lower }}">{{ m.difficulty }}</span></td>
+                            <td>{{ m.lead_tutor_name }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">My mentees</h2>
+            {% if not mentees %}
+                <p class="muted">You are not mentoring any tutors right now.</p>
+            {% else %}
+                <table>
+                    <tr><th>Tutor</th><th>Expertise</th><th class="num">Years</th></tr>
+                    {% for t in mentees %}
+                        <tr>
+                            <td>{{ t.full_name }}</td>
+                            <td>{{ t.expertise }}</td>
+                            <td class="num">{{ t.years_experience }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            <p class="muted" style="margin-bottom:0">
+                Full reporting chain on the <a href="{% url 'tutor_mentorship' %}">mentorship page</a>.
+            </p>
+        </div>
+    </div>
+{% endblock %}

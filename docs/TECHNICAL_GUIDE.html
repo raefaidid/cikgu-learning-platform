@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cikgu — Technical Guide</title>
+<meta name="description" content="How the Cikgu Personalized Learning Platform (Django) is built: architecture, raw-SQL data layer, session auth, routing, templates, and how to run and demo it.">
+<style>
+  :root {
+    --page: #f9f9f7;
+    --surface: #ffffff;
+    --surface-2: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --line: #e4e3df;
+    --accent: #2a78d6;
+    --accent-dark: #1c5cab;
+    --accent-tint: #e3edfa;
+    --good: #0ca30c;
+    --good-tint: #e8f6e8;
+    --warn: #b45309;
+    --warn-tint: #fdf2dc;
+    --bad: #d03b3b;
+    --bad-tint: #fbeaea;
+    --code-bg: #10243c;
+    --code-ink: #dbe7f5;
+    --nav-bg: #10243c;
+    --nav-ink: #cdd9e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0e1116;
+      --surface: #161a21;
+      --surface-2: #12151b;
+      --ink: #eef0f3;
+      --ink-2: #a2a9b4;
+      --line: #262b34;
+      --accent: #5b9bdc;
+      --accent-dark: #7fb0e4;
+      --accent-tint: #182b40;
+      --good: #4ecf4e;
+      --good-tint: #123318;
+      --warn: #e0a338;
+      --warn-tint: #3a2a10;
+      --bad: #ea6b6b;
+      --bad-tint: #3a1414;
+      --code-bg: #0a1622;
+      --code-ink: #cfe0f2;
+      --nav-bg: #0a1622;
+      --nav-ink: #a9bdd4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #0e1116; --surface: #161a21; --surface-2: #12151b; --ink: #eef0f3;
+    --ink-2: #a2a9b4; --line: #262b34; --accent: #5b9bdc; --accent-dark: #7fb0e4;
+    --accent-tint: #182b40; --good: #4ecf4e; --good-tint: #123318; --warn: #e0a338;
+    --warn-tint: #3a2a10; --bad: #ea6b6b; --bad-tint: #3a1414; --code-bg: #0a1622;
+    --code-ink: #cfe0f2; --nav-bg: #0a1622; --nav-ink: #a9bdd4;
+  }
+  :root[data-theme="light"] {
+    --page: #f9f9f7; --surface: #ffffff; --surface-2: #fcfcfb; --ink: #0b0b0b;
+    --ink-2: #52514e; --line: #e4e3df; --accent: #2a78d6; --accent-dark: #1c5cab;
+    --accent-tint: #e3edfa; --good: #0ca30c; --good-tint: #e8f6e8; --warn: #b45309;
+    --warn-tint: #fdf2dc; --bad: #d03b3b; --bad-tint: #fbeaea; --code-bg: #10243c;
+    --code-ink: #dbe7f5; --nav-bg: #10243c; --nav-ink: #cdd9e8;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  a { color: var(--accent-dark); }
+  code, pre, kbd {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  code {
+    background: var(--accent-tint);
+    color: var(--accent-dark);
+    padding: 0.1em 0.4em;
+    border-radius: 5px;
+    font-size: 0.88em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 1rem 1.15rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.83rem;
+    line-height: 1.55;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+  /* ---- masthead ---- */
+  header.hero {
+    background: var(--nav-bg);
+    color: #fff;
+    padding: 2.6rem 1.5rem 2.2rem;
+  }
+  header.hero .wrap { max-width: 1120px; margin: 0 auto; }
+  header.hero .eyebrow {
+    color: var(--nav-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  header.hero h1 { margin: 0 0 0.5rem; font-size: clamp(1.6rem, 3vw, 2.3rem); }
+  header.hero p.sub { color: var(--nav-ink); max-width: 62ch; margin: 0; font-size: 1.02rem; }
+  .badge-row { margin-top: 1.1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .pill {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--nav-ink);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  /* ---- layout: sidebar + content ---- */
+  .layout {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 2.5rem;
+    padding: 2rem 1.5rem 4rem;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; order: -1; }
+  }
+  nav.toc {
+    position: sticky;
+    top: 1.25rem;
+    align-self: start;
+    font-size: 0.86rem;
+  }
+  nav.toc .toc-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-2);
+    margin-bottom: 0.6rem;
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin-bottom: 0.35rem; }
+  nav.toc a {
+    color: var(--ink-2);
+    text-decoration: none;
+    display: block;
+    padding: 0.15rem 0;
+    border-left: 2px solid transparent;
+    padding-left: 0.65rem;
+  }
+  nav.toc a:hover { color: var(--accent-dark); border-left-color: var(--line); }
+
+  main { min-width: 0; }
+  section.doc-section { margin-bottom: 3rem; scroll-margin-top: 1.25rem; }
+  section.doc-section h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.4rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  section.doc-section h2 .num {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin-right: 0.5rem;
+  }
+  h3 { font-size: 1.08rem; margin: 1.6rem 0 0.6rem; }
+  p { margin: 0.75rem 0; }
+  p.lead { color: var(--ink-2); font-size: 1.02rem; }
+  ul, ol { padding-left: 1.3rem; }
+  li { margin: 0.3rem 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    margin: 1rem 0;
+  }
+  .callout {
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin: 1.1rem 0;
+    font-size: 0.94rem;
+    border: 1px solid var(--line);
+  }
+  .callout.note { background: var(--accent-tint); border-color: var(--accent); }
+  .callout.warn { background: var(--warn-tint); border-color: var(--warn); }
+  .callout.good { background: var(--good-tint); border-color: var(--good); }
+  .callout strong { display: block; margin-bottom: 0.2rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink-2); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+  td code, th code { white-space: nowrap; }
+
+  .diagram {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.3rem;
+    overflow-x: auto;
+  }
+  .diagram pre { background: none; color: var(--ink); margin: 0; font-size: 0.82rem; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    background: var(--accent-tint);
+    color: var(--accent-dark);
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2rem 1.5rem 3rem;
+  }
+  footer .wrap { max-width: 1120px; margin: 0 auto; color: var(--ink-2); font-size: 0.88rem; }
+  footer a { color: var(--accent-dark); }
+
+  .file-tree { font-size: 0.83rem; }
+  .file-tree .comment { color: var(--ink-2); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Cikgu Personalized Learning Platform · ICT502 Database Engineering</div>
+    <h1>Technical Guide</h1>
+    <p class="sub">
+      This guide is for the group to understand, run, and demo Cikgu, even if
+      you've never touched Django or Oracle before. It covers the request
+      lifecycle, the hand-written SQL data-access layer, session
+      authentication, routing, templates, how to run the system locally, and
+      a page-by-page walkthrough mapped to the grading rubric — for the code
+      at <code>src/cikgu-app-django/</code>.
+    </p>
+    <div class="badge-row">
+      <span class="pill">Python + Django</span>
+      <span class="pill">Oracle Database 23ai</span>
+      <span class="pill">No Django ORM — hand-written SQL only</span>
+      <span class="pill">No django.contrib.auth — custom session login</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-title">On this page</div>
+    <ol>
+      <li><a href="#overview">1. Overview</a></li>
+      <li><a href="#architecture">2. Architecture</a></li>
+      <li><a href="#stack">3. Tech stack</a></li>
+      <li><a href="#layout">4. Project layout</a></li>
+      <li><a href="#data-access">5. Data-access layer</a></li>
+      <li><a href="#auth">6. Authentication &amp; sessions</a></li>
+      <li><a href="#routing">7. Routing &amp; views</a></li>
+      <li><a href="#templates">8. Templates &amp; messages</a></li>
+      <li><a href="#running">9. Running &amp; logging in</a></li>
+      <li><a href="#artifacts">10. Where the graded SQL artifacts live</a></li>
+      <li><a href="#demo">11. Demo script for the presentation</a></li>
+      <li><a href="#lineage">12. Design lineage</a></li>
+      <li><a href="#validation">13. Validation &amp; limitations</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section class="doc-section" id="overview">
+      <h2><span class="num">01</span>Overview</h2>
+      <p class="lead">
+        Cikgu is a normal <strong>three-layer web application</strong>: a
+        browser talks to a Python web server, which talks to an Oracle
+        database. Nothing runs "in the cloud" — everything runs on your own
+        machine. The actual course deliverable is
+        <strong>the database design and its implementation</strong>
+        (<code>schema/cikgu/</code>) — this app exists to demonstrate that
+        design working end-to-end, not the other way around.
+      </p>
+      <p>
+        Every query in this app is hand-written SQL against the schema —
+        there is no ORM generating SQL on your behalf — and the database
+        itself, not application code, is where triggers, the reporting
+        view, and the recursive query live. That single rule shapes almost
+        every design decision documented in this guide: the data-access
+        layer, the custom session authentication, even how flash messages
+        are wired up.
+      </p>
+      <p>
+        This app is a Python/Django rewrite of an earlier Java/Spring Boot
+        implementation of the same design, which has since been removed
+        from the repository — <code>src/cikgu-app-django/</code> is now the
+        only application here. Where this guide contrasts a decision with
+        "the Spring Boot app," that's design lineage, not a second codebase
+        still sitting in the repo — see <a href="#lineage">§12</a> for the
+        full picture.
+      </p>
+      <div class="callout note">
+        <strong>You do not need to be a Django expert to demo this.</strong>
+        You need to know: how to start Oracle, how to start the app, and
+        what each page proves about the database design. If you only have
+        10 minutes before the presentation, skip to
+        <a href="#demo">§12 Demo script</a>.
+      </div>
+    </section>
+
+    <section class="doc-section" id="architecture">
+      <h2><span class="num">02</span>Architecture</h2>
+      <p>
+        Same three-layer shape as the Spring Boot app — browser, app server,
+        database — with Django's request/response cycle and middleware
+        chain standing in for Spring MVC's filter chain:
+      </p>
+      <div class="diagram">
+<pre>┌─────────────┐        HTTP         ┌───────────────────────┐   oracledb (thin)  ┌─────────────────┐
+│   Browser   │  ───────────────▶   │   Django (WSGI, 8000)  │  ────────────────▶ │  Oracle Database  │
+│             │  ◀───────────────   │   cikgu / cikguapp      │  ◀──────────────── │  (Docker, 1521)   │
+└─────────────┘     HTML pages      └───────────────────────┘    rows / SQL       └─────────────────┘</pre>
+      </div>
+
+      <h3>Request lifecycle</h3>
+      <p>Every request passes through this chain (see <code>cikgu/settings.py → MIDDLEWARE</code>):</p>
+      <div class="diagram">
+<pre>SecurityMiddleware
+  → SessionMiddleware            (decodes the signed-cookie session)
+  → CommonMiddleware
+  → CsrfViewMiddleware            (validates {% csrf_token %} on POSTs)
+  → CikguUserMiddleware           (cikguapp/middleware.py — reads session → request.cikgu_user)
+  → MessageMiddleware              (flash messages, session-backed)
+  → XFrameOptionsMiddleware
+  → urls.py → view function        (often wrapped in @login_required / @role_required)
+      → repositories/*.py           (hand-written SQL)
+        → db.py                      (cursor helpers over django.db.connection)
+          → Oracle (CIKGU schema)</pre>
+      </div>
+      <p>
+        Two things stand out versus the Spring Boot app's filter chain:
+        there is no <code>django.contrib.auth</code> in that list — role
+        checks happen in view decorators, not framework middleware — and
+        sessions are <strong>signed cookies</strong>, not a database table,
+        so nothing about this app's login state ever touches Oracle.
+      </p>
+
+      <h3>Layer responsibilities</h3>
+      <table>
+        <tr><th>Layer</th><th>Lives in</th><th>Responsibility</th></tr>
+        <tr><td><strong>urls.py</strong></td><td><code>cikguapp/urls.py</code></td><td>Maps a path to exactly one view function. One file, mirrors the Spring <code>@RequestMapping</code> tree.</td></tr>
+        <tr><td><strong>views</strong></td><td><code>cikguapp/views/*.py</code></td><td>Parses the request, calls repositories, decides which template to render or where to redirect. One module per original Spring controller.</td></tr>
+        <tr><td><strong>services</strong></td><td><code>cikguapp/services.py</code></td><td>The two multi-statement transaction demos (registration, module creation) — anything a single repository call can't express atomically.</td></tr>
+        <tr><td><strong>repositories</strong></td><td><code>cikguapp/repositories/*.py</code></td><td>All SQL. One module per table/bridge entity. Every function is a plain Python function taking primitives, returning dicts or lists of dicts.</td></tr>
+        <tr><td><strong>db.py</strong></td><td><code>cikguapp/db.py</code></td><td>Thin cursor helpers (<code>query_all</code>, <code>query_one</code>, <code>scalar</code>, <code>execute</code>) — the only place that touches <code>django.db.connection</code> directly.</td></tr>
+        <tr><td><strong>templates</strong></td><td><code>cikguapp/templates/cikguapp/</code></td><td>Django template inheritance (<code>base.html</code> / <code>base_auth.html</code>) standing in for Thymeleaf fragments.</td></tr>
+      </table>
+    </section>
+
+    <section class="doc-section" id="stack">
+      <h2><span class="num">03</span>Tech stack</h2>
+      <table>
+        <tr><th>Piece</th><th>What it is</th><th>Why it's used here</th></tr>
+        <tr><td><strong>Oracle Database 23ai</strong></td><td>Same Docker container and <code>CIKGU</code> schema as the Spring Boot app.</td><td>One database, two front ends — nothing about the schema changed for this port.</td></tr>
+        <tr><td><strong>Django</strong></td><td>Python web framework: URL routing, template engine, sessions, CSRF protection, request/response handling.</td><td>Batteries-included enough to skip reinventing sessions/CSRF/templating, without forcing the ORM on the data layer.</td></tr>
+        <tr><td><strong>python-oracledb</strong></td><td>Oracle's official pure-Python driver (no native Oracle Client install needed, unlike older <code>cx_Oracle</code> "thick mode").</td><td>Django 5+ imports it natively as the Oracle backend driver — the Spring Boot app's equivalent is <code>ojdbc11</code>.</td></tr>
+        <tr><td><strong><code>django.db.connection</code></strong></td><td>Django's raw DB-API cursor, used directly instead of the ORM.</td><td><strong>Deliberately no Django ORM models.</strong> Every query in <code>cikguapp/repositories/</code> is hand-written SQL, the direct equivalent of the Spring app's <code>JdbcTemplate</code> usage — the course grades literal DDL/DML, and an ORM would auto-generate SQL that doesn't match the report.</td></tr>
+        <tr><td><strong>bcrypt (Python package)</strong></td><td>The same hashing algorithm Spring Security's <code>BCryptPasswordEncoder</code> uses.</td><td>Lets this app authenticate against the exact same <code>password_hash</code> values the Spring Boot app wrote — no password migration needed, no dual-write.</td></tr>
+        <tr><td><strong>Django sessions (signed cookies)</strong></td><td>Django's session framework, configured with <code>SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"</code>.</td><td>No server-side session table. Login state is a signed cookie the server verifies but never stores — so this app never creates <em>any</em> Django-managed table in the CIKGU-only schema.</td></tr>
+        <tr><td><strong>Django messages framework</strong></td><td><code>django.contrib.messages</code>, session-backed.</td><td>Direct stand-in for Spring's <code>RedirectAttributes</code> flash attributes — see <a href="#templates">§8</a> for how it's wired to the existing <code>.flash.ok</code>/<code>.flash.err</code> CSS.</td></tr>
+        <tr><td><strong>Django template engine</strong></td><td>Server-rendered <code>.html</code> templates with <code>{% %}</code>/<code>{{ }}</code> syntax.</td><td>Same "no separate frontend build" philosophy as Thymeleaf — the browser gets finished HTML, no React/npm step.</td></tr>
+        <tr><td><strong>Chart.js</strong></td><td>Same minified local file copied over from the Spring Boot app's <code>static/js/</code>.</td><td>Zero reason to change it — it's plain client-side JS, backend-agnostic.</td></tr>
+      </table>
+    </section>
+
+    <section class="doc-section" id="layout">
+      <h2><span class="num">04</span>Project layout</h2>
+      <div class="card file-tree">
+<pre>src/cikgu-app-django/
+├── manage.py                        <span class="comment"># Django's CLI entrypoint (runserver, check, ...)</span>
+├── requirements.txt                 <span class="comment"># Django, oracledb, bcrypt</span>
+├── cikgu/                           <span class="comment"># project config package</span>
+│   ├── settings.py                  <span class="comment"># DB connection, sessions, middleware, installed apps</span>
+│   ├── urls.py                      <span class="comment"># root URLconf — delegates everything to cikguapp.urls</span>
+│   ├── wsgi.py / asgi.py
+│   └── __init__.py
+└── cikguapp/                        <span class="comment"># the one Django app — all business logic</span>
+    ├── urls.py                      <span class="comment"># every route, name, and view function</span>
+    ├── db.py                        <span class="comment"># raw-SQL cursor helpers (query_all, query_one, scalar, execute)</span>
+    ├── auth.py                      <span class="comment"># session login/logout, bcrypt check, @login_required / @role_required</span>
+    ├── middleware.py                <span class="comment"># attaches request.cikgu_user from the session</span>
+    ├── context_processors.py        <span class="comment"># exposes cikgu_user to every template (for the nav bar)</span>
+    ├── console.py                   <span class="comment"># read-only ad hoc SQL console service</span>
+    ├── services.py                  <span class="comment"># the two @transaction.atomic multi-insert demos</span>
+    ├── models.py                    <span class="comment"># deliberately empty — no ORM models</span>
+    ├── repositories/                <span class="comment"># one module per table / bridge entity, hand-written SQL</span>
+    │   ├── users.py                 <span class="comment"># app_user / learner / tutor + mentorship (recursive)</span>
+    │   ├── goals.py
+    │   ├── modules.py
+    │   ├── module_tutors.py         <span class="comment"># MODULE_TUTOR bridge entity #2</span>
+    │   ├── enrollments.py           <span class="comment"># ENROLLMENT bridge entity #1, reads module_progress_v</span>
+    │   └── reports.py
+    ├── views/                       <span class="comment"># one module per original Spring controller</span>
+    │   ├── home.py                  <span class="comment"># home redirect, login, logout, register</span>
+    │   ├── learner.py
+    │   ├── tutor.py
+    │   ├── profile.py
+    │   ├── reports.py
+    │   └── console.py
+    ├── templates/cikguapp/          <span class="comment"># Django templates (ported from Thymeleaf)</span>
+    │   ├── layout_base.html         <span class="comment"># &lt;html&gt;/&lt;head&gt; skeleton, static CSS link</span>
+    │   ├── base.html                <span class="comment"># + nav bar, extends layout_base</span>
+    │   ├── base_auth.html           <span class="comment"># plain auth-page shell (login/register), no nav</span>
+    │   ├── _flash.html              <span class="comment"># renders django.contrib.messages</span>
+    │   ├── login.html, register.html, profile.html, reports.html, console.html
+    │   ├── learner/                 <span class="comment"># dashboard, goals, goal_edit, modules, enrollments</span>
+    │   └── tutor/                   <span class="comment"># dashboard, modules, module_new/edit, co_teachers, progress, mentorship</span>
+    └── static/cikguapp/
+        ├── css/style.css            <span class="comment"># copied verbatim from the Spring Boot app</span>
+        └── js/chart.umd.min.js      <span class="comment"># copied verbatim from the Spring Boot app</span></pre>
+      </div>
+    </section>
+
+    <section class="doc-section" id="data-access">
+      <h2><span class="num">05</span>Data-access layer</h2>
+      <p>
+        Everything funnels through four small helpers in <code>cikguapp/db.py</code>,
+        wrapping <code>django.db.connection.cursor()</code> — Django's raw
+        DB-API cursor, the same primitive the ORM itself is built on, used
+        here directly instead:
+      </p>
+      <pre><code>def query_all(sql, params=None):
+    """Run a SELECT, return a list of dicts."""
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params or [])
+        return dictfetchall(cursor)
+
+def query_one(sql, params=None):
+    """Run a SELECT expected to return at most one row; None if empty."""
+    ...
+
+def scalar(sql, params=None):
+    """Run a SELECT of a single column/row and return that one value."""
+    ...
+
+def execute(sql, params=None):
+    """Run an INSERT/UPDATE/DELETE, return the affected row count."""
+    ...</code></pre>
+      <p>
+        <code>dictfetchall</code> lower-cases Oracle's column names (which
+        come back upper-cased, e.g. <code>GOAL_TITLE</code>) so repository
+        code and templates read naturally as <code>goal_title</code>. Every
+        repository function is a plain function that takes primitives and
+        returns dicts or lists of dicts — no query-building abstraction, no
+        model classes. A representative example, the recursive mentorship
+        query (<code>cikguapp/repositories/users.py</code>):
+      </p>
+      <pre><code>def mentorship_hierarchy():
+    """Full mentorship tree via Oracle CONNECT BY PRIOR."""
+    return db.query_all("""
+        SELECT t.user_id, au.full_name, t.expertise, t.years_experience,
+               t.mentor_id,
+               (SELECT m.full_name FROM app_user m WHERE m.user_id = t.mentor_id) AS mentor_name,
+               LEVEL AS tree_level
+          FROM tutor t
+          JOIN app_user au ON au.user_id = t.user_id
+         START WITH t.mentor_id IS NULL
+        CONNECT BY PRIOR t.user_id = t.mentor_id
+         ORDER SIBLINGS BY au.full_name
+    """)</code></pre>
+
+      <h3>Transaction demos</h3>
+      <p>
+        The two places the Spring app used <code>@Transactional</code> —
+        registration (superclass + subclass row) and module creation
+        (module row + LEAD assignment) — use Django's
+        <code>transaction.atomic()</code> the same way, in
+        <code>cikguapp/services.py</code>:
+      </p>
+      <pre><code>@transaction.atomic
+def register(full_name, email, raw_password, phone, user_type,
+             education_background, parsed_skills, expertise, years_experience):
+    """
+    The APP_USER superclass row and the matching subclass row (LEARNER or
+    TUTOR) are inserted in ONE transaction — if either insert fails, both
+    roll back and no orphan superclass row is left behind.
+    """
+    if users_repo.email_exists(email):
+        raise RegistrationError("An account with that email already exists.")
+    ...
+    user_id = users_repo.next_user_id()
+    users_repo.insert_app_user(user_id, full_name, email,
+                                auth.hash_password(raw_password), phone, user_type)
+    if user_type == "LEARNER":
+        users_repo.insert_learner(user_id, education_background, parsed_skills)
+    else:
+        users_repo.insert_tutor(user_id, expertise, years_experience)
+    return user_id</code></pre>
+      <p>
+        Integrity races — a second co-teacher assignment landing at the same
+        instant, a duplicate enrollment — are still caught the same way the
+        Spring app caught <code>DuplicateKeyException</code>: the view
+        wraps the write in <code>try/except django.db.IntegrityError</code>
+        and turns it into a friendly flash message, trusting the database's
+        unique constraints (<code>modtut_one_lead_uix</code>, the
+        <code>enrollment</code> composite PK) as the actual source of truth.
+      </p>
+
+      <h3>Oracle date handling</h3>
+      <p>
+        HTML <code>&lt;input type="date"&gt;</code> values arrive as
+        <code>YYYY-MM-DD</code> strings and get parsed to
+        <code>datetime.date</code> objects with
+        <code>django.utils.dateparse.parse_date</code>. But
+        <code>python-oracledb</code> binds <code>DATE</code> columns
+        cleanly from <code>datetime.datetime</code>, not a bare
+        <code>date</code> — so <code>db.to_oracle_date()</code> lifts every
+        date to midnight before it reaches a query, the one small
+        Oracle-specific wrinkle this port had to handle that JDBC didn't.
+      </p>
+
+      <h3>The SQL console's guardrail</h3>
+      <p>
+        <code>cikguapp/console.py</code> is a line-for-line port of the
+        Spring app's <code>QueryConsoleService</code>: strip a trailing
+        <code>;</code>, reject anything with a second statement, require the
+        input start with <code>SELECT</code>/<code>WITH</code>, and reject a
+        regex-matched list of DML/DDL keywords appearing anywhere in the
+        statement — a guard against accidental DML from the demo console,
+        not a defense against a malicious DBA-level user, same caveat as
+        the original.
+      </p>
+    </section>
+
+    <section class="doc-section" id="auth">
+      <h2><span class="num">06</span>Authentication &amp; sessions</h2>
+      <p>
+        This is the biggest structural departure from the Spring Boot app.
+        Spring Security supplies a <code>UserDetailsService</code>, a
+        filter chain, and role-based URL matchers out of the box. Django's
+        equivalent, <code>django.contrib.auth</code>, expects a real
+        <code>AUTH_USER_MODEL</code> — an actual ORM-backed table — which
+        this app's "no ORM" design rules out. So authentication here is a
+        small, self-contained layer instead: <code>cikguapp/auth.py</code>.
+      </p>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0">How login works</h3>
+          <ol>
+            <li><code>auth.authenticate(email, password)</code> looks up <code>app_user</code> by email (case-insensitive) via <code>db.query_one</code>.</li>
+            <li><code>bcrypt.checkpw()</code> verifies the password against the stored <code>password_hash</code> — the same hash format Spring's <code>BCryptPasswordEncoder</code> writes, so seeded accounts and Spring-created accounts log in here unchanged.</li>
+            <li>On success, <code>auth.login_user()</code> cycles the session key (fixation protection) and stores <code>{user_id, full_name, email, user_type}</code> in <code>request.session</code>.</li>
+            <li><code>CikguUserMiddleware</code> reads that dict into <code>request.cikgu_user</code> on every subsequent request.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">How role checks work</h3>
+          <p>Two decorators in <code>auth.py</code> replace Spring Security's URL matchers:</p>
+          <pre><code>@role_required("TUTOR")
+def dashboard(request):
+    ...</code></pre>
+          <p>
+            <code>login_required</code> redirects to <code>/login/</code> if
+            <code>request.cikgu_user</code> is <code>None</code>;
+            <code>role_required(user_type)</code> wraps it and additionally
+            redirects home with a flash message if the logged-in user's
+            <code>user_type</code> doesn't match — the direct equivalent of
+            <code>.requestMatchers("/tutor/**").hasRole("TUTOR")</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <strong>No server-side session table, by design</strong>
+        <code>SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"</code>
+        in <code>cikgu/settings.py</code> means the session payload lives in
+        a cryptographically signed cookie, verified with <code>SECRET_KEY</code>
+        on every request, never persisted server-side. Combined with no
+        ORM models, this Django app never issues a <code>CREATE TABLE</code>
+        of its own — every table it ever touches is one
+        <code>schema/cikgu/cikgu_install.sql</code> already created.
+      </div>
+
+      <p>
+        <code>django.contrib.admin</code>, <code>django.contrib.auth</code>,
+        and <code>django.contrib.contenttypes</code> are all absent from
+        <code>INSTALLED_APPS</code> — none of them are needed once
+        authentication doesn't depend on a Django-managed user table, and
+        leaving them out keeps the "zero Django-managed tables" property
+        honest rather than just implicit.
+      </p>
+    </section>
+
+    <section class="doc-section" id="routing">
+      <h2><span class="num">07</span>Routing, views &amp; page walkthrough</h2>
+      <p>
+        <code>cikguapp/urls.py</code> is the single source of truth for
+        every route — one file, no per-controller URL-prefix hunting. Every
+        screen below exists because it's graded by name in the rubric
+        (<strong>Insert / Read / Update / Delete / Bridge / Recursive /
+        Inheritance / Extra</strong>) — use this table both to understand
+        the code and as a demo checklist (see <a href="#demo">§11</a>).
+      </p>
+
+      <h3>Public</h3>
+      <div class="table-scroll">
+      <table>
+        <tr><th>URL</th><th>View</th><th>What it does</th><th>Rubric tie-in</th></tr>
+        <tr><td><code>/login/</code></td><td><code>views.home.login_view</code></td><td>GET renders the form; POST calls <code>auth.authenticate()</code>.</td><td>—</td></tr>
+        <tr><td><code>/register/</code></td><td><code>views.home.register_view</code></td><td>One form, LEARNER or TUTOR; POST calls <code>services.register()</code> (one transaction, both rows).</td><td><span class="tag">Insert</span> <span class="tag">Inheritance</span> transaction demo</td></tr>
+      </table>
+      </div>
+
+      <h3>Learner (<code>@role_required("LEARNER")</code>)</h3>
+      <div class="table-scroll">
+      <table>
+        <tr><th>URL</th><th>View</th><th>What it does</th><th>Rubric tie-in</th></tr>
+        <tr><td><code>/learner/dashboard/</code></td><td><code>learner.dashboard</code></td><td>Goal/enrollment counts, completed &amp; behind-schedule tallies (computed in the view, not the template).</td><td><span class="tag">Read</span></td></tr>
+        <tr><td><code>/learner/goals/</code></td><td><code>learner.goals</code></td><td>List + create a goal (GET/POST on one route, same as the Spring app).</td><td><span class="tag">Insert</span> <span class="tag">Read</span></td></tr>
+        <tr><td><code>/learner/goals/&lt;id&gt;/edit/</code></td><td><code>learner.goal_edit</code></td><td>Edit form + update, scoped to the owning learner.</td><td><span class="tag">Update</span></td></tr>
+        <tr><td><code>/learner/goals/&lt;id&gt;/delete/</code></td><td><code>learner.goal_delete</code></td><td>Delete, scoped to the owning learner.</td><td><span class="tag">Delete</span></td></tr>
+        <tr><td><code>/learner/modules/</code></td><td><code>learner.browse_modules</code></td><td>Search + difficulty filter over <code>modules_repo.search()</code>.</td><td><span class="tag">Read</span></td></tr>
+        <tr><td><code>/learner/enroll/</code></td><td><code>learner.enroll</code></td><td>Insert into <code>ENROLLMENT</code>, optionally linked to a goal.</td><td><span class="tag">Bridge #1</span></td></tr>
+        <tr><td><code>/learner/enrollments/</code></td><td><code>learner.enrollment_list</code></td><td>Reads <code>module_progress_v</code>, shows the BEHIND badge.</td><td><span class="tag">Read</span></td></tr>
+        <tr><td><code>/learner/enrollments/&lt;module_id&gt;/drop/</code></td><td><code>learner.drop_enrollment</code></td><td>Deletes the enrollment row.</td><td><span class="tag">Delete</span></td></tr>
+      </table>
+      </div>
+
+      <h3>Tutor (<code>@role_required("TUTOR")</code>)</h3>
+      <div class="table-scroll">
+      <table>
+        <tr><th>URL</th><th>View</th><th>What it does</th><th>Rubric tie-in</th></tr>
+        <tr><td><code>/tutor/dashboard/</code></td><td><code>tutor.dashboard</code></td><td>Modules taught + direct mentees.</td><td><span class="tag">Read</span></td></tr>
+        <tr><td><code>/tutor/modules/</code></td><td><code>tutor.my_modules</code></td><td>Modules led/co-taught.</td><td><span class="tag">Read</span></td></tr>
+        <tr><td><code>/tutor/modules/new/</code> → <code>/tutor/modules/create/</code></td><td><code>tutor.new_module_form</code> / <code>tutor.create_module</code></td><td>Form, then <code>services.create_module()</code> — module row + LEAD assignment, one transaction.</td><td><span class="tag">Insert</span> transaction demo</td></tr>
+        <tr><td><code>/tutor/modules/&lt;id&gt;/edit/</code></td><td><code>tutor.module_edit</code></td><td>Edit, scoped by <code>module_tutors_repo.teaches()</code>.</td><td><span class="tag">Update</span></td></tr>
+        <tr><td><code>/tutor/modules/&lt;id&gt;/delete/</code></td><td><code>tutor.module_delete</code></td><td>Delete; cascading FKs remove enrollments/assignments.</td><td><span class="tag">Delete</span></td></tr>
+        <tr><td><code>/tutor/modules/&lt;id&gt;/teachers/</code></td><td><code>tutor.co_teachers</code></td><td>List + add a co-teacher (LEAD stays unique via <code>modtut_one_lead_uix</code>).</td><td><span class="tag">Bridge #2</span></td></tr>
+        <tr><td><code>/tutor/modules/&lt;id&gt;/teachers/&lt;tid&gt;/remove/</code></td><td><code>tutor.remove_co_teacher</code></td><td>Removes a CO_TEACHER row only — the LEAD row is protected.</td><td><span class="tag">Delete</span></td></tr>
+        <tr><td><code>/tutor/progress/</code> → <code>/tutor/progress/update/</code></td><td><code>tutor.progress</code> / <code>tutor.update_progress</code></td><td>Updates <code>progress_score</code>/<code>status</code>; fires the DB trigger stamping <code>last_updated_at</code>.</td><td><span class="tag">Update</span> trigger demo</td></tr>
+        <tr><td><code>/tutor/mentorship/</code> → <code>/tutor/mentorship/set/</code></td><td><code>tutor.mentorship</code> / <code>tutor.set_mentor</code></td><td>Full <code>CONNECT BY PRIOR</code> tree; sets your own mentor (cycle-excluded candidate list).</td><td><span class="tag">Recursive</span></td></tr>
+      </table>
+      </div>
+
+      <h3>Shared</h3>
+      <div class="table-scroll">
+      <table>
+        <tr><th>URL</th><th>View</th><th>What it does</th><th>Rubric tie-in</th></tr>
+        <tr><td><code>/profile/</code></td><td><code>views.profile.profile</code></td><td>Joins <code>app_user</code> + subclass row; saving updates both in one <code>transaction.atomic()</code> block.</td><td><span class="tag">Inheritance</span></td></tr>
+        <tr><td><code>/reports/</code></td><td><code>views.reports.reports</code></td><td>Top modules (Chart.js bar chart) + behind-schedule table, both from <code>module_progress_v</code>.</td><td><span class="tag">Extra</span> view + chart</td></tr>
+        <tr><td><code>/console/</code></td><td><code>views.console.console</code></td><td>Read-only ad hoc <code>SELECT</code> console, capped at 200 rows.</td><td><span class="tag">Extra</span> ad hoc query</td></tr>
+      </table>
+      </div>
+    </section>
+
+    <section class="doc-section" id="templates">
+      <h2><span class="num">08</span>Templates &amp; messages</h2>
+      <p>
+        Thymeleaf's <code>th:replace</code> fragments become Django's
+        native template inheritance. Three base templates replace
+        <code>fragments/layout.html</code>:
+      </p>
+      <ul>
+        <li><code>layout_base.html</code> — the bare <code>&lt;html&gt;&lt;head&gt;</code> skeleton, links the shared stylesheet.</li>
+        <li><code>base.html</code> — extends it, adds the nav bar (role-conditional links, driven by the <code>cikgu_user</code> context processor) and a <code>{% block content %}</code>.</li>
+        <li><code>base_auth.html</code> — extends it with just the centered <code>.auth-wrap</code> shell, no nav — used by <code>login.html</code>/<code>register.html</code>.</li>
+      </ul>
+      <p>Every content page is now three lines shorter than its Thymeleaf equivalent:</p>
+      <pre><code>{% extends "cikguapp/base.html" %}
+{% block title %}My Goals{% endblock %}
+{% block content %}
+    &lt;h1&gt;My learning goals&lt;/h1&gt;
+    {% include "cikguapp/_flash.html" %}
+    ...
+{% endblock %}</code></pre>
+
+      <h3>Flash messages → django.contrib.messages</h3>
+      <p>
+        Spring's <code>RedirectAttributes</code> flash attributes
+        (<code>msg</code>/<code>err</code>) become Django's session-backed
+        messages framework. <code>MESSAGE_TAGS</code> in
+        <code>settings.py</code> maps Django's <code>SUCCESS</code>/<code>ERROR</code>
+        levels onto the <em>existing</em> <code>.flash.ok</code>/<code>.flash.err</code>
+        CSS classes carried over from the Spring app's stylesheet — so the
+        stylesheet needed zero changes:
+      </p>
+      <pre><code>MESSAGE_TAGS = {
+    message_constants.SUCCESS: "ok",
+    message_constants.ERROR: "err",
+    message_constants.WARNING: "err",
+}</code></pre>
+      <p><code>_flash.html</code> is then just:</p>
+      <pre><code>{% for message in messages %}
+    &lt;div class="flash {{ message.tags }}"&gt;{{ message }}&lt;/div&gt;
+{% endfor %}</code></pre>
+
+      <h3>The mentorship tree indent</h3>
+      <p>
+        Thymeleaf built the tree's indentation inline with
+        <code>#strings.repeat(...)</code>. Django templates have no string-repeat
+        filter, so that computation moved to the view
+        (<code>views/tutor.py:mentorship</code>) — one line per node, using
+        the same rationale as the reporting counts on the learner dashboard:
+        prefer a fat view over template logic Django doesn't have a clean
+        built-in for.
+      </p>
+
+      <h3>Feeding Chart.js safely</h3>
+      <p>
+        Thymeleaf's <code>th:inline="javascript"</code> becomes Django's
+        <code>json_script</code> filter — the idiomatic, auto-escaped way to
+        hand server data to client JS without building a string by hand:
+      </p>
+      <pre><code>{{ chart_data|json_script:"chart-data" }}
+&lt;script&gt;
+  const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+  new Chart(document.getElementById('topModulesChart'), { ... data: chartData.values ... });
+&lt;/script&gt;</code></pre>
+    </section>
+
+    <section class="doc-section" id="running">
+      <h2><span class="num">09</span>Running it locally</h2>
+      <ol>
+        <li>Start Oracle from the repo root: <code>./scripts/oracle23ai.sh start</code></li>
+        <li>Install the schema (if not already): see <code>schema/cikgu/README.md</code></li>
+        <li>
+          <pre><code>cd src/cikgu-app-django
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py runserver</code></pre>
+        </li>
+        <li>Open <code>http://localhost:8000</code> and log in with any seeded account (password <code>password123</code>).</li>
+      </ol>
+      <p>
+        Connection settings default to <code>localhost:1521/FREEPDB1</code>,
+        user <code>cikgu</code> / <code>Cikgu_123</code> — the same schema
+        target the Docker Oracle container is set up for — and can be
+        overridden with <code>CIKGU_DB_HOST</code>, <code>CIKGU_DB_PORT</code>,
+        <code>CIKGU_DB_SERVICE</code>, <code>CIKGU_DB_USER</code>,
+        <code>CIKGU_DB_PASSWORD</code> — see <code>cikgu/settings.py</code>.
+      </p>
+
+      <p>
+        <strong>Port 8000 already in use?</strong> Stop whatever else is
+        holding it, or run on a different port:
+        <code>python manage.py runserver 8001</code>.
+      </p>
+
+      <h3>Log in</h3>
+      <p>Every seeded account uses the password <strong><code>password123</code></strong>. A few useful ones:</p>
+      <div class="table-scroll">
+      <table>
+        <tr><th>Email</th><th>Role</th><th>Notable for demo</th></tr>
+        <tr><td><code>halim.abdullah@cikgu.my</code></td><td>Tutor</td><td>Top of the mentorship chain, leads <em>SQL Fundamentals</em> with 2 co-teachers</td></tr>
+        <tr><td><code>salmah.yusof@cikgu.my</code></td><td>Tutor</td><td>Mentored by Halim, leads <em>Advanced PL/SQL</em></td></tr>
+        <tr><td><code>aina.sofea@cikgu.my</code></td><td>Learner</td><td>Has 2 goals and 3 enrollments (one completed, one behind schedule)</td></tr>
+        <tr><td><code>wong.kaixin@cikgu.my</code></td><td>Learner</td><td>Has a goal but <strong>zero enrollments</strong> (useful if demoing the "learners with no enrollment" query)</td></tr>
+      </table>
+      </div>
+      <p>
+        You can also just click <strong>Register</strong> and create your
+        own account live — this is actually a good thing to show in the
+        presentation (see <a href="#demo">§11</a>).
+      </p>
+    </section>
+
+    <section class="doc-section" id="artifacts">
+      <h2><span class="num">10</span>Where the graded SQL artifacts live</h2>
+      <p>
+        These live under <code>schema/cikgu/</code>, independent of which
+        app is running against them — for the <strong>final report
+        appendices</strong>:
+      </p>
+      <div class="table-scroll">
+      <table>
+        <tr><th>Rubric appendix</th><th>File</th></tr>
+        <tr><td>Data Dictionary</td><td><code>schema/cikgu/data_dictionary.md</code></td></tr>
+        <tr><td>DDL (tables, sequences, triggers, view)</td><td><code>schema/cikgu/cikgu_create.sql</code></td></tr>
+        <tr><td>DML (seed data)</td><td><code>schema/cikgu/cikgu_populate.sql</code></td></tr>
+        <tr><td>10 ad hoc queries</td><td><code>schema/cikgu/cikgu_queries.sql</code> — each has a comment stating the question it answers, covering 10 different SQL techniques (filter, join, aggregate, <code>NOT EXISTS</code>, <code>CONNECT BY PRIOR</code>, <code>HAVING</code>, window function, INSERT, UPDATE, DELETE) so nobody loses marks for "repeated SQL"</td></tr>
+      </table>
+      </div>
+      <p>To run all 10 queries and see their output for screenshots:</p>
+      <pre><code>docker exec -w /opt/oracle/schemas/cikgu oracle23ai \
+  sqlplus cikgu/Cikgu_123@//localhost:1521/FREEPDB1 @cikgu_queries.sql</code></pre>
+      <p>
+        (Queries 8–10 are INSERT/UPDATE/DELETE demos; the script rolls them
+        back at the end, so re-running it never corrupts your seed data.)
+      </p>
+    </section>
+
+    <section class="doc-section" id="demo">
+      <h2><span class="num">11</span>Demo script for the presentation</h2>
+      <p>
+        The <strong>System Presentation</strong> item (30 marks) explicitly
+        rewards the main function working comprehensively, navigation
+        working, and extra features (graphs, a real backend). The
+        <strong>ERD Understanding</strong> item (5 marks) rewards relating
+        the ERD to the <em>running system</em> while you explain it — not
+        just reading the diagram. Suggested order, roughly 10–12 minutes,
+        one member per numbered section works well for a 5-person group:
+      </p>
+      <ol>
+        <li><strong>Registration + inheritance</strong> (~1 min) — Register a new Tutor live. Point at the ERD: "this one form writes to both <code>APP_USER</code> and <code>TUTOR</code> in one transaction — that's the disjoint specialization."</li>
+        <li><strong>Goals + browse + enroll</strong> (~2 min) — As a learner, create a goal, browse modules filtered by difficulty, enroll in one linked to that goal. Point at the ERD: "<code>ENROLLMENT</code> is the bridge between <code>LEARNER</code> and <code>MODULE</code>, and it carries the goal link."</li>
+        <li><strong>Module + co-teacher management</strong> (~2 min) — As a tutor, create a module (note you're auto-assigned LEAD), then add a co-teacher. Optionally, open the SQL console and try inserting a second LEAD row to show the unique index rejecting it — a nice unscripted "the database itself enforces this" moment.</li>
+        <li><strong>Progress update + trigger</strong> (~1 min) — Update a learner's progress; point out <code>last_updated_at</code> changed even though nobody wrote to it explicitly.</li>
+        <li><strong>Mentorship hierarchy</strong> (~2 min) — Show the full <code>CONNECT BY PRIOR</code> tree, then reassign a mentor and explain the recursive relationship.</li>
+        <li><strong>Reports</strong> (~1 min) — Show the chart and the behind-schedule table; tie it back to the original problem statement ("tutors couldn't answer these questions without a spreadsheet — now it's one page").</li>
+        <li><strong>SQL console — one query per member</strong> (~3–4 min) — This is where the <strong>individual ad hoc query</strong> marks come from. Each member should have their own query ready (don't all reuse the same one — the rubric explicitly rewards <em>different kinds</em> of SQL). Good picks from <code>cikgu_queries.sql</code>: the join, the <code>NOT EXISTS</code>, the <code>HAVING</code>, and the window function all look visually different and are easy to explain in 30 seconds.</li>
+      </ol>
+      <div class="callout warn">
+        <strong>Before presenting:</strong> run through <a href="#running">§9</a>
+        end-to-end on the machine you'll demo from, at least once, so nobody
+        is debugging Docker live in front of the lecturer.
+      </div>
+    </section>
+
+    <section class="doc-section" id="lineage">
+      <h2><span class="num">12</span>Design lineage</h2>
+      <p>
+        This app began life as a Django rewrite of an earlier Spring Boot
+        (Java) implementation of the same design, which has since been
+        removed from the repository in favor of this single implementation.
+        The table below is kept for anyone curious about the design
+        rationale — several decisions in this codebase (hand-written SQL
+        instead of an ORM, a custom session-auth layer, bcrypt password
+        hashing) only make full sense in contrast to what they replaced:
+      </p>
+      <div class="table-scroll">
+      <table>
+        <tr><th>Earlier Spring Boot design</th><th>This Django app</th></tr>
+        <tr><td><code>JdbcTemplate</code></td><td><code>django.db.connection</code> cursor, wrapped by <code>cikguapp/db.py</code></td></tr>
+        <tr><td><code>@Repository</code> classes</td><td><code>cikguapp/repositories/*.py</code> modules of plain functions</td></tr>
+        <tr><td><code>@Service</code> + <code>@Transactional</code></td><td><code>cikguapp/services.py</code> functions decorated with <code>@transaction.atomic</code></td></tr>
+        <tr><td><code>@Controller</code> classes</td><td><code>cikguapp/views/*.py</code> modules of plain view functions</td></tr>
+        <tr><td>Spring Security (<code>SecurityConfig</code>, <code>UserDetailsService</code>)</td><td><code>cikguapp/auth.py</code> — custom session auth + <code>@login_required</code>/<code>@role_required</code> decorators</td></tr>
+        <tr><td><code>BCryptPasswordEncoder</code></td><td><code>bcrypt.hashpw</code> / <code>bcrypt.checkpw</code> (same hash format — interoperable with existing data)</td></tr>
+        <tr><td>Servlet session (Spring Session)</td><td>Django session, signed-cookie backend — no session table either way's needed, but Django's config makes that explicit</td></tr>
+        <tr><td><code>RedirectAttributes</code> flash attrs</td><td><code>django.contrib.messages</code>, tagged to match the existing flash CSS</td></tr>
+        <tr><td>Thymeleaf + fragments</td><td>Django templates + <code>{% extends %}</code>/<code>{% block %}</code> inheritance</td></tr>
+        <tr><td><code>record</code> model classes (<code>Goal</code>, <code>UserProfile</code>, ...)</td><td>Plain <code>dict</code>s returned by repository functions (Python has no need for the boilerplate a Java record avoids)</td></tr>
+        <tr><td><code>DuplicateKeyException</code></td><td><code>django.db.IntegrityError</code></td></tr>
+        <tr><td><code>application.properties</code></td><td><code>cikgu/settings.py</code> <code>DATABASES</code>, with env-var overrides</td></tr>
+        <tr><td>Maven (<code>pom.xml</code>, <code>mvn spring-boot:run</code>)</td><td><code>requirements.txt</code> + <code>pip</code>, <code>python manage.py runserver</code></td></tr>
+      </table>
+      </div>
+    </section>
+
+    <section class="doc-section" id="validation">
+      <h2><span class="num">13</span>Validation performed &amp; known limitations</h2>
+      <div class="callout warn">
+        <strong>No live Oracle connection was available while building this port.</strong>
+        Everything below was validated without one; the actual data path
+        (a real query hitting the CIKGU schema) has not been exercised by
+        the person/tool that wrote this code. Run it once against your own
+        <code>oracle23ai</code> container and click through the main flows
+        (register, enroll, mentorship, console) before treating it as final.
+      </div>
+      <h3>What was checked</h3>
+      <ul>
+        <li><code>python -m py_compile</code> on every <code>.py</code> file — no syntax errors.</li>
+        <li><code>python manage.py check</code> — Django's system-check framework passes clean (settings, URLconf, template engine config).</li>
+        <li>Every template under <code>cikguapp/templates/</code> parsed successfully via <code>django.template.loader.get_template()</code> — catches malformed <code>{% %}</code> tags.</li>
+        <li>Every named URL in <code>cikguapp/urls.py</code> resolved via <code>django.urls.reverse()</code>, including the parameterized ones (goal/module/tutor ids) — catches typos in <code>{% url %}</code> tag names and argument counts.</li>
+        <li><code>/login/</code> and <code>/register/</code> rendered end-to-end through the full middleware + context-processor + template-inheritance stack via Django's test client (the only two pages that need no database row to render) — both returned <code>200 OK</code>, including the CSS/Chart.js static-file URLs resolving correctly.</li>
+        <li>Unauthenticated requests to <code>/</code> and to a role-protected route (<code>/learner/dashboard/</code>) correctly redirect to <code>/login/</code>.</li>
+      </ul>
+      <h3>What wasn't checked</h3>
+      <ul>
+        <li>Any view that queries Oracle — every repository function, every dashboard, the SQL console, registration, and the two transaction demos are untested against real data.</li>
+        <li>Whether <code>bcrypt.checkpw()</code> actually accepts the exact hash strings Spring's <code>BCryptPasswordEncoder</code> wrote for the seeded accounts (they should — both are standard <code>$2a$</code>/<code>$2b$</code> bcrypt — but this wasn't verified against the live <code>app_user</code> rows).</li>
+        <li>Concurrent-write behavior (the <code>IntegrityError</code> handling around duplicate enrollments/co-teacher assignments) — the code path exists but hasn't been triggered against a live constraint violation.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    See also: <a href="../README.md">project README</a> ·
+    <a href="../src/cikgu-app-django/README.md">cikgu-app-django README</a> ·
+    <a href="../../schema/cikgu/README.md">schema install instructions</a> ·
+    <a href="../../schema/cikgu/data_dictionary.md">schema data dictionary</a>
+  </div>
+</footer>
+
+</body>
+</html>

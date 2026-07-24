@@ -1,0 +1,24 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}Edit Goal{% endblock %}
+{% block content %}
+    <h1>Edit goal</h1>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card" style="max-width:560px">
+        <form action="{% url 'learner_goal_edit' goal.goal_id %}" method="post">
+            {% csrf_token %}
+            <label for="goalTitle">Goal title</label>
+            <input type="text" id="goalTitle" name="goalTitle" maxlength="200" required
+                   value="{{ goal.goal_title }}">
+
+            <label for="targetOutcome">Target outcome</label>
+            <textarea id="targetOutcome" name="targetOutcome" maxlength="500" rows="2">{{ goal.target_outcome }}</textarea>
+
+            <label for="targetDate">Target date</label>
+            <input type="date" id="targetDate" name="targetDate" value="{{ goal.target_date|date:'Y-m-d' }}">
+
+            <button class="btn" type="submit">Save changes</button>
+            <a class="btn ghost" href="{% url 'learner_goals' %}">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

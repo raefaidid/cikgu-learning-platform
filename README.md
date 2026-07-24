@@ -41,15 +41,21 @@ This project has two halves, kept in the two locations the course expects:
 schema/cikgu/                          ← the database: DDL, seed data, 10 ad hoc queries
 projects/ICT502_GROUP/
 ├── docs/                              ← YOU ARE HERE — proposal, rubrics, technical guide
-└── src/cikgu-app/                     ← the Spring Boot web application
+└── src/cikgu-app-django/              ← the web application (Python + Django)
 ```
+
+The web app is hand-written-SQL only (no ORM), points at the `CIKGU` Oracle
+schema, and implements the full feature set the course rubric grades —
+insert/read/update/delete, both bridge entities, the recursive mentorship
+query, the inheritance-demo profile page, transaction demos, a trigger, a
+reporting view, and an ad hoc SQL console.
 
 | Read this... | ...if you want to |
 |---|---|
-| [`docs/TECHNICAL_GUIDE.md`](docs/TECHNICAL_GUIDE.md) | Understand the tech stack from scratch, run the system locally, and see what every page does (with a suggested presentation script) |
+| [`docs/TECHNICAL_GUIDE.html`](docs/TECHNICAL_GUIDE.html) | Understand the tech stack from scratch, run the system locally, and see what every page does (with a suggested presentation script) — HTML, open it in a browser |
 | [`../../schema/cikgu/README.md`](../../schema/cikgu/README.md) | Install/uninstall the database schema directly |
 | [`../../schema/cikgu/data_dictionary.md`](../../schema/cikgu/data_dictionary.md) | Table/column reference for the report appendix |
-| [`src/cikgu-app/README.md`](src/cikgu-app/README.md) | Run the web app, with a rubric-to-screen feature map |
+| [`src/cikgu-app-django/README.md`](src/cikgu-app-django/README.md) | Run the web app |
 | `docs/project_description.pdf`, `docs/project_rubrics.pdf` | The lecturer's official assignment brief and grading rubrics |
 | `docs/CHCECKED Cikgu Personalized Learning Platform ICT502_GROUP_3_PROPOSAL.pdf` | Our graded proposal (company background, problem statement, objectives, original ERD) |
 
@@ -64,22 +70,25 @@ docker exec -w /opt/oracle/schemas/cikgu oracle23ai \
   sqlplus system/admin123@//localhost:1521/FREEPDB1 @cikgu_install.sql
 
 # 3. Run the app
-cd src/cikgu-app
-mvn spring-boot:run
+cd src/cikgu-app-django
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py runserver
 ```
 
-Open **http://localhost:8080** and log in with any seeded account — password
+Open **http://localhost:8000** and log in with any seeded account — password
 `password123` for all of them (e.g. `halim.abdullah@cikgu.my`). Full
 instructions, troubleshooting, and login options are in
-[`docs/TECHNICAL_GUIDE.md`](docs/TECHNICAL_GUIDE.md).
+[`docs/TECHNICAL_GUIDE.html`](docs/TECHNICAL_GUIDE.html).
 
 ## Tech stack at a glance
 
-Oracle Database 23ai (in Docker) · Java 21 + Spring Boot · Spring MVC +
-Thymeleaf (server-rendered, no separate frontend build) · Spring JDBC
-(`JdbcTemplate`, hand-written SQL — no ORM) · Spring Security (session login,
-BCrypt) · Maven · Chart.js. See the technical guide for *why* each piece was
-chosen.
+Oracle Database 23ai (in Docker) · Python 3 + Django · Django templates
+(server-rendered, no separate frontend build) · hand-written SQL through
+`django.db.connection` cursors (no ORM) · a small custom session-based auth
+layer (bcrypt password hashing, signed-cookie sessions — no
+`django.contrib.auth`, no Django-managed database tables) · Chart.js. See
+the technical guide for *why* each piece was chosen.
 
 ## Database design highlights
 

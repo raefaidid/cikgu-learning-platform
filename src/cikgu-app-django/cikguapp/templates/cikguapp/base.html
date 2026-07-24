@@ -1,0 +1,32 @@
+{% extends "cikguapp/layout_base.html" %}
+{% block body %}
+<nav>
+    <a class="brand" href="{% url 'home' %}">Cikgu</a>
+
+    {% if cikgu_user.user_type == 'LEARNER' %}
+        <a href="{% url 'learner_dashboard' %}">Dashboard</a>
+        <a href="{% url 'learner_goals' %}">My Goals</a>
+        <a href="{% url 'learner_modules' %}">Browse Modules</a>
+        <a href="{% url 'learner_enrollments' %}">My Enrollments</a>
+    {% elif cikgu_user.user_type == 'TUTOR' %}
+        <a href="{% url 'tutor_dashboard' %}">Dashboard</a>
+        <a href="{% url 'tutor_modules' %}">My Modules</a>
+        <a href="{% url 'tutor_progress' %}">Learner Progress</a>
+        <a href="{% url 'tutor_mentorship' %}">Mentorship</a>
+    {% endif %}
+
+    <a href="{% url 'reports' %}">Reports</a>
+    <a href="{% url 'console' %}">SQL Console</a>
+
+    <span class="spacer"></span>
+    <span class="who">{{ cikgu_user.full_name }}</span>
+    <a href="{% url 'profile' %}">Profile</a>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Log out</button>
+    </form>
+</nav>
+<main>
+    {% block content %}{% endblock %}
+</main>
+{% endblock %}

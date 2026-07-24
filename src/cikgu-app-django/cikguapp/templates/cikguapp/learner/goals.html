@@ -1,0 +1,51 @@
+{% extends "cikguapp/base.html" %}
+{% block title %}My Goals{% endblock %}
+{% block content %}
+    <h1>My learning goals</h1>
+    {% include "cikguapp/_flash.html" %}
+
+    <div class="card">
+        <h2 style="margin-top:0">Add a goal</h2>
+        <form action="{% url 'learner_goals' %}" method="post">
+            {% csrf_token %}
+            <label for="goalTitle">Goal title</label>
+            <input type="text" id="goalTitle" name="goalTitle" maxlength="200" required>
+
+            <label for="targetOutcome">Target outcome (optional)</label>
+            <textarea id="targetOutcome" name="targetOutcome" maxlength="500" rows="2"></textarea>
+
+            <label for="targetDate">Target date (optional)</label>
+            <input type="date" id="targetDate" name="targetDate">
+
+            <button class="btn" type="submit">Create goal</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Existing goals</h2>
+        {% if not goals %}
+            <p class="muted">No goals yet.</p>
+        {% else %}
+            <div class="table-scroll">
+                <table>
+                    <tr><th>Goal</th><th>Target outcome</th><th>Target date</th><th></th></tr>
+                    {% for g in goals %}
+                        <tr>
+                            <td>{{ g.goal_title }}</td>
+                            <td>{{ g.target_outcome|default:"—" }}</td>
+                            <td>{{ g.target_date|date:"Y-m-d"|default:"—" }}</td>
+                            <td style="white-space:nowrap">
+                                <a class="btn small ghost" href="{% url 'learner_goal_edit' g.goal_id %}">Edit</a>
+                                <form class="inline" action="{% url 'learner_goal_delete' g.goal_id %}" method="post"
+                                      onsubmit="return confirm('Delete this goal? Enrollments linked to it keep running, but lose the goal link.');">
+                                    {% csrf_token %}
+                                    <button class="btn small danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

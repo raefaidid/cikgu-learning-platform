@@ -1,5 +1,11 @@
-# Maven build output
-target/
+# Python / Django
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+db.sqlite3
+.env
 
 # OS junk
 .DS_Store
