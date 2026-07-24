@@ -63,15 +63,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "cikgu.wsgi.application"
 
 # Database ---------------------------------------------------------------
-# Same target as the Spring Boot app's application.properties:
-#   jdbc:oracle:thin:@//localhost:1521/FREEPDB1, user cikgu / Cikgu_123
-# against the CIKGU schema installed by schema/cikgu/cikgu_install.sql.
+# Same target as the JDBC URL jdbc:oracle:thin:@//localhost:1521/FREEPDB1,
+# user cikgu / Cikgu_123, against the CIKGU schema installed by
+# schema/cikgu/cikgu_install.sql.
+#
+# FREEPDB1 is a service name, not a SID. Django's oracledb backend only
+# builds an Easy Connect (host:port/service_name) string when HOST/PORT are
+# left unset and NAME carries the whole thing -- if HOST/PORT are set
+# separately, it builds a SID-style DSN instead (Database.makedsn(host,
+# port, sid)), which fails against a service-name-only listener entry with
+# "DPY-6003: SID ... is not registered with the listener". So NAME is
+# assembled here from the three env vars instead of passing them through
+# as separate HOST/PORT/NAME keys.
+_db_host = os.environ.get("CIKGU_DB_HOST", "localhost")
+_db_port = os.environ.get("CIKGU_DB_PORT", "1521")
+_db_service = os.environ.get("CIKGU_DB_SERVICE", "FREEPDB1")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.oracle",
-        "HOST": os.environ.get("CIKGU_DB_HOST", "localhost"),
-        "PORT": os.environ.get("CIKGU_DB_PORT", "1521"),
-        "NAME": os.environ.get("CIKGU_DB_SERVICE", "FREEPDB1"),
+        "NAME": f"{_db_host}:{_db_port}/{_db_service}",
         "USER": os.environ.get("CIKGU_DB_USER", "cikgu"),
         "PASSWORD": os.environ.get("CIKGU_DB_PASSWORD", "Cikgu_123"),
     }
