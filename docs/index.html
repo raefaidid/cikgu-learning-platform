@@ -344,12 +344,12 @@ erDiagram
     MODULE ||--o{ MODULE_TUTOR : "assigned via"
     TUTOR ||--o{ MODULE_TUTOR : teaches
 
-    classDef superclass fill:#10243c,stroke:#10243c,color:#ffffff
-    classDef learner fill:#e3edfa,stroke:#2a78d6,color:#0b0b0b
-    classDef tutor fill:#ece5fb,stroke:#6b46c1,color:#0b0b0b
-    classDef goalClass fill:#fdf2dc,stroke:#b45309,color:#0b0b0b
-    classDef moduleClass fill:#e8f6e8,stroke:#0ca30c,color:#0b0b0b
-    classDef bridge fill:#fbe7ef,stroke:#b23a68,color:#0b0b0b
+    classDef superclass fill:#ffffff,stroke:#10243c,stroke-width:2px,color:#0b0b0b
+    classDef learner fill:#ffffff,stroke:#2a78d6,stroke-width:2px,color:#0b0b0b
+    classDef tutor fill:#ffffff,stroke:#6b46c1,stroke-width:2px,color:#0b0b0b
+    classDef goalClass fill:#ffffff,stroke:#b45309,stroke-width:2px,color:#0b0b0b
+    classDef moduleClass fill:#ffffff,stroke:#0ca30c,stroke-width:2px,color:#0b0b0b
+    classDef bridge fill:#ffffff,stroke:#b23a68,stroke-width:2px,color:#0b0b0b
 
     class APP_USER superclass
     class LEARNER learner
@@ -437,12 +437,13 @@ flowchart TD
     Shared --> Logout
     Logout --> End(["End"])
 
-    classDef terminal fill:#10243c,stroke:#10243c,color:#ffffff
-    classDef decision fill:#fdf2dc,stroke:#b45309,color:#0b0b0b
-    classDef learnerNode fill:#e3edfa,stroke:#2a78d6,color:#0b0b0b
-    classDef tutorNode fill:#ece5fb,stroke:#6b46c1,color:#0b0b0b
-    classDef sharedNode fill:#e8f6e8,stroke:#0ca30c,color:#0b0b0b
-    classDef txnNode fill:#fbe7ef,stroke:#b23a68,color:#0b0b0b
+    classDef terminal fill:#ffffff,stroke:#10243c,stroke-width:2px,color:#0b0b0b
+    classDef decision fill:#ffffff,stroke:#b45309,stroke-width:2px,color:#0b0b0b
+    classDef learnerNode fill:#ffffff,stroke:#2a78d6,stroke-width:2px,color:#0b0b0b
+    classDef tutorNode fill:#ffffff,stroke:#6b46c1,stroke-width:2px,color:#0b0b0b
+    classDef sharedNode fill:#ffffff,stroke:#0ca30c,stroke-width:2px,color:#0b0b0b
+    classDef txnNode fill:#ffffff,stroke:#b23a68,stroke-width:2px,color:#0b0b0b
+    classDef plainNode fill:#ffffff,stroke:#52514e,stroke-width:1.5px,color:#0b0b0b
 
     class Start,End,Logout terminal
     class LoggedIn,AuthChoice,Credentials,RoleCheck decision
@@ -450,6 +451,7 @@ flowchart TD
     class LDash,LGoals,LBrowse,LEnroll,LEnrollments,LProfile learnerNode
     class TDash,TModules,TCoteach,TProgress,TMentor,TProfile tutorNode
     class Shared sharedNode
+    class Visit,RegForm,LoginForm plainNode
       </pre>
     </div>
     <div class="diagram-legend">
