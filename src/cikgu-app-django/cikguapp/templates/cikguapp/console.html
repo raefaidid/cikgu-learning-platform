@@ -1,41 +1,65 @@
 {% extends "cikguapp/base.html" %}
 {% block title %}SQL Console{% endblock %}
+{% block main_class %}main-wide{% endblock %}
 {% block content %}
     <h1>Ad hoc SQL console</h1>
-    <p class="lead">Run a read-only <code>SELECT</code> against the CIKGU schema
-        (tables: <code>app_user</code>, <code>learner</code>, <code>tutor</code>, <code>goal</code>,
-        <code>module</code>, <code>module_tutor</code>, <code>enrollment</code>,
-        view <code>module_progress_v</code>). Results are capped at 200 rows.</p>
+    <p class="lead">Run a read-only <code>SELECT</code> against the CIKGU schema. Results are capped at 200 rows.</p>
     {% include "cikguapp/_flash.html" %}
 
-    <div class="card">
-        <form action="{% url 'console' %}" method="post">
-            {% csrf_token %}
-            <label for="sql">SELECT statement</label>
-            <textarea class="sql" id="sql" name="sql" spellcheck="false">{{ sql }}</textarea>
-            <button class="btn" type="submit">Run query</button>
-        </form>
-    </div>
-
-    {% if console_error %}
-        <div class="flash err">{{ console_error }}</div>
-    {% endif %}
-
-    {% if result %}
-        <div class="card">
-            <h2 style="margin-top:0">{{ result.row_count }} row(s)</h2>
-            <div class="table-scroll">
-                <table>
-                    <tr>
-                        {% for c in result.columns %}<th>{{ c }}</th>{% endfor %}
-                    </tr>
-                    {% for row in result.rows %}
-                        <tr>
-                            {% for cell in row %}<td>{{ cell|default:"—" }}</td>{% endfor %}
-                        </tr>
-                    {% endfor %}
-                </table>
+    <div class="console-layout">
+        <div class="console-main">
+            <div class="card">
+                <form action="{% url 'console' %}" method="post">
+                    {% csrf_token %}
+                    <label for="sql">SELECT statement</label>
+                    <textarea class="sql" id="sql" name="sql" spellcheck="false">{{ sql }}</textarea>
+                    <button class="btn" type="submit">Run query</button>
+                </form>
             </div>
+
+            {% if console_error %}
+                <div class="flash err">{{ console_error }}</div>
+            {% endif %}
+
+            {% if result %}
+                <div class="card">
+                    <h2 style="margin-top:0">{{ result.row_count }} row(s)</h2>
+                    <div class="table-scroll">
+                        <table>
+                            <tr>
+                                {% for c in result.columns %}<th>{{ c }}</th>{% endfor %}
+                            </tr>
+                            {% for row in result.rows %}
+                                <tr>
+                                    {% for cell in row %}<td>{{ cell|default:"—" }}</td>{% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
+
+        <aside class="schema-panel card">
+            <h2 style="margin-top:0">Schema reference</h2>
+            <p class="muted" style="margin-top:-0.4rem">Click a table to see its columns.</p>
+            {% for t in schema_tables %}
+                <details class="schema-table">
+                    <summary>
+                        {{ t.table_name|lower }}
+                        <span class="badge {% if t.object_type == 'VIEW' %}in_progress{% else %}lead{% endif %}">{{ t.object_type }}</span>
+                    </summary>
+                    <table>
+                        {% for c in t.columns %}
+                            <tr>
+                                <td>{{ c.column_name|lower }}{% if c.not_null %}<span class="muted"> *</span>{% endif %}</td>
+                                <td class="muted">{{ c.data_type_display|lower }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </details>
+            {% endfor %}
+            <p class="muted" style="margin-bottom:0">* = <code>NOT NULL</code></p>
+        </aside>
+    </div>
 {% endblock %}

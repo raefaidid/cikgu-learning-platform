@@ -26,7 +26,7 @@
         <button type="submit">Log out</button>
     </form>
 </nav>
-<main>
+<main class="{% block main_class %}{% endblock %}">
     {% block content %}{% endblock %}
 </main>
 {% endblock %}
