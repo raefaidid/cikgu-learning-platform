@@ -24,10 +24,16 @@ DEBUG = os.environ.get("CIKGU_DEBUG", "1") == "1"
 ALLOWED_HOSTS = os.environ.get("CIKGU_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
-    # No django.contrib.admin/auth/contenttypes: this app rolls its own
-    # session-based auth against the app_user table (see cikguapp/auth.py)
-    # and never asks Django to manage a table of its own.
-    "django.contrib.sessions",
+    # No django.contrib.admin/auth/contenttypes/sessions: this app rolls its
+    # own session-based auth against the app_user table (see
+    # cikguapp/auth.py) and never asks Django to manage a table of its own.
+    # SessionMiddleware reads SESSION_ENGINE directly at runtime and doesn't
+    # need "django.contrib.sessions" installed unless you're using the
+    # database-backed session backend (we use signed cookies instead, see
+    # SESSION_ENGINE below) -- leaving it out avoids Django flagging the
+    # sessions app's unapplied "create django_session table" migration on
+    # every runserver start, which would otherwise nudge you toward running
+    # `migrate` and creating a table this app is designed to never need.
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "cikguapp",
