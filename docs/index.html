@@ -62,6 +62,19 @@
     line-height: 1.55;
   }
   pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  /* Mermaid renders its SVG *inside* the <pre class="mermaid"> mount point
+     rather than replacing it, so the generic pre{} code-block styling
+     above (dark background, padding, code line-height) otherwise leaks
+     through and shows as a big navy rectangle behind the diagram. */
+  pre.mermaid {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    overflow: visible;
+    line-height: normal;
+    font-size: inherit;
+  }
 
   /* ---- masthead ---- */
   header.hero {
