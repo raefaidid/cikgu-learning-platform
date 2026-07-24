@@ -26,6 +26,10 @@
     --code-ink: #dbe7f5;
     --nav-bg: #10243c;
     --nav-ink: #cdd9e8;
+    --erd-tutor-tint: #ece5fb;
+    --erd-tutor: #6b46c1;
+    --erd-bridge-tint: #fbe7ef;
+    --erd-bridge: #b23a68;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -48,6 +52,10 @@
       --code-ink: #cfe0f2;
       --nav-bg: #0a1622;
       --nav-ink: #a9bdd4;
+      --erd-tutor-tint: #241a3d;
+      --erd-tutor: #a685e0;
+      --erd-bridge-tint: #3a1a28;
+      --erd-bridge: #e592b3;
     }
   }
   :root[data-theme="dark"] {
@@ -56,6 +64,8 @@
     --accent-tint: #182b40; --good: #4ecf4e; --good-tint: #123318; --warn: #e0a338;
     --warn-tint: #3a2a10; --bad: #ea6b6b; --bad-tint: #3a1414; --code-bg: #0a1622;
     --code-ink: #cfe0f2; --nav-bg: #0a1622; --nav-ink: #a9bdd4;
+    --erd-tutor-tint: #241a3d; --erd-tutor: #a685e0;
+    --erd-bridge-tint: #3a1a28; --erd-bridge: #e592b3;
   }
   :root[data-theme="light"] {
     --page: #f9f9f7; --surface: #ffffff; --surface-2: #fcfcfb; --ink: #0b0b0b;
@@ -63,6 +73,8 @@
     --accent-tint: #e3edfa; --good: #0ca30c; --good-tint: #e8f6e8; --warn: #b45309;
     --warn-tint: #fdf2dc; --bad: #d03b3b; --bad-tint: #fbeaea; --code-bg: #10243c;
     --code-ink: #dbe7f5; --nav-bg: #10243c; --nav-ink: #cdd9e8;
+    --erd-tutor-tint: #ece5fb; --erd-tutor: #6b46c1;
+    --erd-bridge-tint: #fbe7ef; --erd-bridge: #b23a68;
   }
 
   * { box-sizing: border-box; }
@@ -231,6 +243,15 @@
     background: var(--accent-tint);
     color: var(--accent-dark);
   }
+  .tag.lecture { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line); text-transform: none; letter-spacing: 0; font-weight: 600; }
+  .tag.mode-console { background: var(--good-tint); color: var(--good); }
+  .tag.mode-sqlplus { background: var(--warn-tint); color: var(--warn); }
+
+  .query-card { margin: 1.1rem 0; }
+  .query-card .query-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .query-card .query-head h3 { margin: 0; font-size: 1rem; flex: 1 1 auto; min-width: 200px; }
+  .query-card p.q-question { color: var(--ink-2); margin: 0 0 0.6rem; font-size: 0.9rem; }
+  .query-card p.q-note { margin: 0.6rem 0 0; font-size: 0.87rem; }
 
   footer {
     border-top: 1px solid var(--line);
@@ -241,6 +262,76 @@
 
   .file-tree { font-size: 0.83rem; }
   .file-tree .comment { color: var(--ink-2); }
+
+  /* ---- ERD ---- */
+  .erd-wrap {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    padding: 2rem 1.5rem 2.5rem;
+  }
+  .erd-wrap .wrap { max-width: 1120px; margin: 0 auto; }
+  .erd-wrap h2 { font-size: 1.4rem; margin: 0 0 0.4rem; }
+  .erd-wrap p.lead { margin-top: 0; }
+  .erd-svg-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .erd-svg-card svg { display: block; margin: 0 auto; min-width: 760px; }
+
+  .erd-box rect.erd-body { stroke-width: 1.5; }
+  .erd-box rect.erd-head { stroke-width: 1.5; }
+  .erd-box text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .erd-box text.erd-title { font-weight: 700; font-size: 12.5px; }
+  .erd-box text.erd-attr { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; fill: var(--ink); }
+  .erd-box text.erd-attr tspan.pk { font-weight: 700; }
+  .erd-box text.erd-attr tspan.fk { font-style: italic; }
+
+  .erd-box.superclass rect.erd-head, .erd-box.superclass rect.erd-body { fill: var(--nav-bg); stroke: var(--nav-bg); }
+  .erd-box.superclass text.erd-title { fill: #fff; }
+  .erd-box.superclass text.erd-attr { fill: #cdd9e8; }
+
+  .erd-box.learner rect.erd-head { fill: var(--accent); stroke: var(--accent); }
+  .erd-box.learner rect.erd-body { fill: var(--accent-tint); stroke: var(--accent); }
+  .erd-box.learner text.erd-title { fill: #fff; }
+
+  .erd-box.tutor rect.erd-head { fill: var(--erd-tutor); stroke: var(--erd-tutor); }
+  .erd-box.tutor rect.erd-body { fill: var(--erd-tutor-tint); stroke: var(--erd-tutor); }
+  .erd-box.tutor text.erd-title { fill: #fff; }
+
+  .erd-box.goal rect.erd-head { fill: var(--warn); stroke: var(--warn); }
+  .erd-box.goal rect.erd-body { fill: var(--warn-tint); stroke: var(--warn); }
+  .erd-box.goal text.erd-title { fill: #fff; }
+
+  .erd-box.module rect.erd-head { fill: var(--good); stroke: var(--good); }
+  .erd-box.module rect.erd-body { fill: var(--good-tint); stroke: var(--good); }
+  .erd-box.module text.erd-title { fill: #fff; }
+
+  .erd-box.bridge rect.erd-head { fill: var(--erd-bridge); stroke: var(--erd-bridge); }
+  .erd-box.bridge rect.erd-body { fill: var(--erd-bridge-tint); stroke: var(--erd-bridge); }
+  .erd-box.bridge text.erd-title { fill: #fff; }
+
+  .erd-line { fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
+  .erd-line.dashed { stroke-dasharray: 4 3; }
+  .erd-marker-line { stroke: var(--ink-2); stroke-width: 1.4; }
+  .erd-marker-circle { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.4; }
+  .erd-isa-circle { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.4; }
+  .erd-isa-label, .erd-rel-label { font-size: 10.5px; fill: var(--ink-2); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .erd-isa-label { font-weight: 700; font-size: 11px; }
+
+  .erd-legend { display: flex; flex-wrap: wrap; gap: 0.9rem 1.5rem; margin-top: 1rem; font-size: 0.82rem; color: var(--ink-2); }
+  .erd-legend .item { display: flex; align-items: center; gap: 0.45rem; }
+  .erd-legend .swatch { width: 13px; height: 13px; border-radius: 4px; display: inline-block; flex: none; }
+  .erd-legend .swatch.superclass { background: var(--nav-bg); }
+  .erd-legend .swatch.learner { background: var(--accent); }
+  .erd-legend .swatch.tutor { background: var(--erd-tutor); }
+  .erd-legend .swatch.goal { background: var(--warn); }
+  .erd-legend .swatch.module { background: var(--good); }
+  .erd-legend .swatch.bridge { background: var(--erd-bridge); }
+  .erd-legend .notation { display: flex; align-items: center; gap: 0.3rem; }
+  .erd-legend .notation svg { display: block; }
 </style>
 </head>
 <body>
@@ -266,10 +357,181 @@
   </div>
 </header>
 
+<section class="erd-wrap" id="erd">
+  <div class="wrap">
+    <h2>Entity-Relationship Diagram</h2>
+    <p class="lead">
+      The seven tables of the <code>CIKGU</code> schema, colored by role:
+      <strong>superclass</strong>, <strong>subclass</strong>,
+      <strong>independent entity</strong>, and <strong>bridge entity</strong> —
+      the same categories the ERD rubric grades by name. Full column-level
+      detail is in <code>schema/cikgu/data_dictionary.md</code>; this is the
+      shape of the design.
+    </p>
+    <div class="erd-svg-card">
+      <svg viewBox="0 0 1020 660" role="img" aria-label="Entity-relationship diagram of the CIKGU schema">
+        <defs>
+          <marker id="mOne" viewBox="0 0 12 12" markerWidth="11" markerHeight="11" refX="9" refY="6" orient="auto">
+            <line x1="9" y1="1" x2="9" y2="11" class="erd-marker-line"/>
+          </marker>
+          <marker id="mMany" viewBox="0 0 14 14" markerWidth="15" markerHeight="15" refX="12" refY="7" orient="auto">
+            <path d="M12,7 L0,1 M12,7 L0,7 M12,7 L0,13" class="erd-marker-line" fill="none"/>
+          </marker>
+          <marker id="mZeroOne" viewBox="0 0 22 14" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto">
+            <line x1="10" y1="1" x2="10" y2="13" class="erd-marker-line"/>
+            <circle cx="16.5" cy="7" r="3" class="erd-marker-circle"/>
+          </marker>
+          <marker id="mZeroMany" viewBox="0 0 22 14" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto">
+            <path d="M13,7 L1,1 M13,7 L1,7 M13,7 L1,13" class="erd-marker-line" fill="none"/>
+            <circle cx="16.5" cy="7" r="3" class="erd-marker-circle"/>
+          </marker>
+        </defs>
+
+        <!-- ===== connectors (drawn first, under the boxes) ===== -->
+        <!-- ISA: APP_USER -> LEARNER / TUTOR (disjoint specialization) -->
+        <path d="M515,114 L515,150" class="erd-line"/>
+        <circle cx="515" cy="150" r="9" class="erd-isa-circle"/>
+        <text x="515" y="153.5" text-anchor="middle" class="erd-isa-label">d</text>
+        <path d="M515,150 L247.5,150 L247.5,185" class="erd-line"/>
+        <path d="M515,150 L757.5,150 L757.5,185" class="erd-line"/>
+        <text x="527" y="146" class="erd-isa-label">ISA (disjoint)</text>
+
+        <!-- TUTOR self-loop: mentor_id (recursive) -->
+        <path d="M865,215 C915,215 915,260 865,260" class="erd-line dashed" marker-start="url(#mZeroOne)" marker-end="url(#mZeroMany)"/>
+        <text x="900" y="242" class="erd-rel-label">mentors</text>
+
+        <!-- LEARNER -> GOAL: "defines" -->
+        <path d="M200,265 L200,305 L117.5,305 L117.5,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+        <text x="122" y="299" class="erd-rel-label">defines</text>
+
+        <!-- LEARNER -> ENROLLMENT: "enrolls in" -->
+        <path d="M295,265 L295,305 L365,305 L365,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+        <text x="300" y="299" class="erd-rel-label">enrolls in</text>
+
+        <!-- GOAL -> ENROLLMENT: "guides" (optional, non-key FK) -->
+        <path d="M215,400 L250,400" class="erd-line dashed" marker-start="url(#mZeroOne)" marker-end="url(#mZeroMany)"/>
+        <text x="196" y="418" class="erd-rel-label">guides (optional)</text>
+
+        <!-- MODULE -> ENROLLMENT: "receives" -->
+        <path d="M400,455 L400,490 L580,490 L580,530" class="erd-line" marker-start="url(#mMany)" marker-end="url(#mOne)"/>
+        <text x="430" y="485" class="erd-rel-label">receives</text>
+
+        <!-- MODULE -> MODULE_TUTOR: "assigned via" -->
+        <path d="M872.5,425 L872.5,490 L655,490 L655,530" class="erd-line" marker-start="url(#mMany)" marker-end="url(#mOne)"/>
+        <text x="700" y="485" class="erd-rel-label">assigned via</text>
+
+        <!-- TUTOR -> MODULE_TUTOR: "teaches" -->
+        <path d="M800,279 L800,310 L872.5,310 L872.5,345" class="erd-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+        <text x="806" y="304" class="erd-rel-label">teaches</text>
+
+        <!-- ===== entity boxes ===== -->
+        <!-- APP_USER (superclass) -->
+        <g class="erd-box superclass">
+          <rect class="erd-head" x="405" y="20" width="220" height="24" rx="6"/>
+          <rect class="erd-body" x="405" y="44" width="220" height="70" rx="0"/>
+          <rect x="405" y="20" width="220" height="94" rx="6" fill="none" stroke="var(--nav-bg)"/>
+          <text x="515" y="36.5" text-anchor="middle" class="erd-title">APP_USER</text>
+          <text x="416" y="59" class="erd-attr"><tspan class="pk">user_id (PK)</tspan></text>
+          <text x="416" y="74" class="erd-attr">full_name</text>
+          <text x="416" y="89" class="erd-attr">email (UK)</text>
+          <text x="416" y="104" class="erd-attr">user_type</text>
+        </g>
+
+        <!-- LEARNER (subclass) -->
+        <g class="erd-box learner">
+          <rect class="erd-head" x="150" y="185" width="195" height="24" rx="6"/>
+          <rect class="erd-body" x="150" y="209" width="195" height="56" rx="0"/>
+          <rect x="150" y="185" width="195" height="80" rx="6" fill="none" stroke="var(--accent)"/>
+          <text x="247.5" y="201.5" text-anchor="middle" class="erd-title">LEARNER</text>
+          <text x="161" y="224" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
+          <text x="161" y="239" class="erd-attr">education_background</text>
+          <text x="161" y="254" class="erd-attr">parsed_skills</text>
+        </g>
+
+        <!-- TUTOR (subclass, recursive via mentor_id) -->
+        <g class="erd-box tutor">
+          <rect class="erd-head" x="650" y="185" width="215" height="24" rx="6"/>
+          <rect class="erd-body" x="650" y="209" width="215" height="70" rx="0"/>
+          <rect x="650" y="185" width="215" height="94" rx="6" fill="none" stroke="var(--erd-tutor)"/>
+          <text x="757.5" y="201.5" text-anchor="middle" class="erd-title">TUTOR</text>
+          <text x="661" y="224" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
+          <text x="661" y="239" class="erd-attr"><tspan class="fk">mentor_id (FK, self)</tspan></text>
+          <text x="661" y="254" class="erd-attr">expertise</text>
+          <text x="661" y="269" class="erd-attr">years_experience</text>
+        </g>
+
+        <!-- GOAL (entity) -->
+        <g class="erd-box goal">
+          <rect class="erd-head" x="20" y="345" width="195" height="24" rx="6"/>
+          <rect class="erd-body" x="20" y="369" width="195" height="70" rx="0"/>
+          <rect x="20" y="345" width="195" height="94" rx="6" fill="none" stroke="var(--warn)"/>
+          <text x="117.5" y="361.5" text-anchor="middle" class="erd-title">GOAL</text>
+          <text x="31" y="384" class="erd-attr"><tspan class="pk">goal_id (PK)</tspan></text>
+          <text x="31" y="399" class="erd-attr"><tspan class="fk">user_id (FK)</tspan></text>
+          <text x="31" y="414" class="erd-attr">goal_title</text>
+          <text x="31" y="429" class="erd-attr">target_date</text>
+        </g>
+
+        <!-- ENROLLMENT (bridge entity #1: LEARNER x MODULE) -->
+        <g class="erd-box bridge">
+          <rect class="erd-head" x="250" y="345" width="230" height="24" rx="6"/>
+          <rect class="erd-body" x="250" y="369" width="230" height="86" rx="0"/>
+          <rect x="250" y="345" width="230" height="110" rx="6" fill="none" stroke="var(--erd-bridge)"/>
+          <text x="365" y="361.5" text-anchor="middle" class="erd-title">ENROLLMENT</text>
+          <text x="261" y="384" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
+          <text x="261" y="399" class="erd-attr"><tspan class="pk fk">module_id (PK,FK)</tspan></text>
+          <text x="261" y="414" class="erd-attr"><tspan class="fk">goal_id (FK, optional)</tspan></text>
+          <text x="261" y="429" class="erd-attr">progress_score</text>
+          <text x="261" y="444" class="erd-attr">status</text>
+        </g>
+
+        <!-- MODULE_TUTOR (bridge entity #2: MODULE x TUTOR) -->
+        <g class="erd-box bridge">
+          <rect class="erd-head" x="760" y="345" width="225" height="24" rx="6"/>
+          <rect class="erd-body" x="760" y="369" width="225" height="56" rx="0"/>
+          <rect x="760" y="345" width="225" height="80" rx="6" fill="none" stroke="var(--erd-bridge)"/>
+          <text x="872.5" y="361.5" text-anchor="middle" class="erd-title">MODULE_TUTOR</text>
+          <text x="771" y="384" class="erd-attr"><tspan class="pk fk">module_id (PK,FK)</tspan></text>
+          <text x="771" y="399" class="erd-attr"><tspan class="pk fk">user_id (PK,FK)</tspan></text>
+          <text x="771" y="414" class="erd-attr">teaching_role (LEAD/CO_TEACHER)</text>
+        </g>
+
+        <!-- MODULE (entity) -->
+        <g class="erd-box module">
+          <rect class="erd-head" x="520" y="530" width="195" height="24" rx="6"/>
+          <rect class="erd-body" x="520" y="554" width="195" height="56" rx="0"/>
+          <rect x="520" y="530" width="195" height="80" rx="6" fill="none" stroke="var(--good)"/>
+          <text x="617.5" y="546.5" text-anchor="middle" class="erd-title">MODULE</text>
+          <text x="531" y="569" class="erd-attr"><tspan class="pk">module_id (PK)</tspan></text>
+          <text x="531" y="584" class="erd-attr">module_title</text>
+          <text x="531" y="599" class="erd-attr">difficulty</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="erd-legend">
+      <span class="item"><span class="swatch superclass"></span>Superclass — APP_USER</span>
+      <span class="item"><span class="swatch learner"></span>Subclass — LEARNER</span>
+      <span class="item"><span class="swatch tutor"></span>Subclass — TUTOR</span>
+      <span class="item"><span class="swatch goal"></span>Entity — GOAL</span>
+      <span class="item"><span class="swatch module"></span>Entity — MODULE</span>
+      <span class="item"><span class="swatch bridge"></span>Bridge entity — ENROLLMENT, MODULE_TUTOR</span>
+    </div>
+    <p class="lead" style="margin-top:0.6rem; font-size:0.85rem;">
+      <strong>Notation:</strong> <code>PK</code>/<code>FK</code> mark keys · a tick (|) = exactly one ·
+      a circle + tick = zero or one · a crow's foot (&lt;) = many · a circle + crow's foot = zero or many ·
+      a <strong>dashed</strong> line = optional/non-identifying relationship (nullable FK) ·
+      the <strong>d</strong> circle = disjoint specialization (ISA) — every <code>APP_USER</code> row is
+      <em>either</em> a <code>LEARNER</code> <em>or</em> a <code>TUTOR</code>, never both.
+    </p>
+  </div>
+</section>
+
 <div class="layout">
   <nav class="toc" aria-label="Table of contents">
     <div class="toc-title">On this page</div>
     <ol>
+      <li><a href="#erd">ERD</a></li>
       <li><a href="#overview">1. Overview</a></li>
       <li><a href="#architecture">2. Architecture</a></li>
       <li><a href="#stack">3. Tech stack</a></li>
@@ -281,8 +543,9 @@
       <li><a href="#running">9. Running &amp; logging in</a></li>
       <li><a href="#artifacts">10. Where the graded SQL artifacts live</a></li>
       <li><a href="#demo">11. Demo script for the presentation</a></li>
-      <li><a href="#lineage">12. Design lineage</a></li>
-      <li><a href="#validation">13. Validation &amp; limitations</a></li>
+      <li><a href="#queries">12. Ten queries for the presentation</a></li>
+      <li><a href="#lineage">13. Design lineage</a></li>
+      <li><a href="#validation">14. Validation &amp; limitations</a></li>
     </ol>
   </nav>
 
@@ -314,15 +577,16 @@
         from the repository — <code>src/cikgu-app-django/</code> is now the
         only application here. Where this guide contrasts a decision with
         "the Spring Boot app," that's design lineage, not a second codebase
-        still sitting in the repo — see <a href="#lineage">§12</a> for the
+        still sitting in the repo — see <a href="#lineage">§13</a> for the
         full picture.
       </p>
       <div class="callout note">
         <strong>You do not need to be a Django expert to demo this.</strong>
         You need to know: how to start Oracle, how to start the app, and
-        what each page proves about the database design. If you only have
-        10 minutes before the presentation, skip to
-        <a href="#demo">§12 Demo script</a>.
+        what each page proves about the database design. See the
+        <a href="#erd">ERD</a> above for the schema shape, or if you only
+        have 10 minutes before the presentation, skip to
+        <a href="#demo">§11 Demo script</a> and <a href="#queries">§12 Ten queries</a>.
       </div>
     </section>
 
@@ -834,8 +1098,218 @@ python manage.py runserver</code></pre>
       </div>
     </section>
 
+    <section class="doc-section" id="queries">
+      <h2><span class="num">12</span>Ten queries for the presentation</h2>
+      <p>
+        Ready-to-run queries for the <strong>ADHOC Query</strong> (10 marks) and
+        <strong>10 SQL Queries</strong> report appendix (20 marks — 2 marks each
+        for a genuinely different <em>kind</em> of SQL, 1 mark if it's just a
+        repeat with different literals) items in <code>docs/project_rubrics.pdf</code>.
+        Each one is tagged with the lecture it demonstrates, so between them
+        they cover every syllabus lecture that has something expressible as a
+        runnable query — <code>syllabus/Lecture 2</code> (relational model),
+        <code>3</code> (ER modeling / recursive relationships),
+        <code>5</code> (transaction management), <code>6</code> (relational
+        algebra), <code>7</code> (query processing / subqueries), and
+        <code>9</code> (data warehousing / OLAP). Lectures 1, 4, and 8 are
+        architecture and process topics (three-level architecture, the SDLC,
+        distributed DBMS) without a single query that demonstrates them —
+        Lecture 4's DDL angle is already fully covered by
+        <code>schema/cikgu/cikgu_create.sql</code>.
+      </p>
+      <div class="callout note">
+        <strong>Where to run these:</strong> queries 1–9 are plain
+        <code>SELECT</code>s — paste them straight into the app's
+        <a href="#routing">SQL Console</a> (<code>/console/</code>), which
+        accepts exactly this. Query 10 is a genuine <code>UPDATE</code> +
+        <code>ROLLBACK</code> transaction demo, so it won't pass the
+        console's read-only guard by design (see §5's "SQL console's
+        guardrail") — run it in SQL*Plus or SQL Developer instead.
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>1. Selection &amp; projection — advanced modules over 10 hours</h3>
+          <span class="tag lecture">Lecture 6 · Relational Algebra (σ, π)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Which modules are ADVANCED difficulty and take more than 10 hours?</p>
+        <pre><code>SELECT module_title, duration_hours, difficulty
+  FROM module
+ WHERE difficulty = 'ADVANCED' AND duration_hours &gt; 10
+ ORDER BY duration_hours DESC;</code></pre>
+        <p class="q-note">A single table filtered by <code>WHERE</code> (selection, σ) and narrowed to three columns (projection, π) — the two most basic relational algebra operators, in isolation.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>2. Multi-table equijoin — who's enrolled in what</h3>
+          <span class="tag lecture">Lecture 6 · Relational Algebra (⋈)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Which learners are enrolled in which modules, and how are they progressing?</p>
+        <pre><code>SELECT au.full_name AS learner, m.module_title, e.progress_score, e.status
+  FROM enrollment e
+  JOIN learner l  ON l.user_id = e.user_id
+  JOIN app_user au ON au.user_id = l.user_id
+  JOIN module m   ON m.module_id = e.module_id
+ ORDER BY au.full_name;</code></pre>
+        <p class="q-note">A four-table equijoin walking the inheritance join (<code>app_user</code>↔<code>learner</code>) and the <code>ENROLLMENT</code> bridge entity in one statement.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>3. Outer join — enrollments with or without a goal</h3>
+          <span class="tag lecture">Lecture 6 · Relational Algebra (outer join)</span>
+          <span class="tag lecture">Lecture 2 · Relational Model (nullable FK)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">List every enrollment together with the goal guiding it, including enrollments with no linked goal.</p>
+        <pre><code>SELECT au.full_name AS learner, m.module_title, g.goal_title
+  FROM enrollment e
+  JOIN learner l   ON l.user_id = e.user_id
+  JOIN app_user au ON au.user_id = l.user_id
+  JOIN module m    ON m.module_id = e.module_id
+  LEFT JOIN goal g ON g.goal_id = e.goal_id
+ ORDER BY au.full_name;</code></pre>
+        <p class="q-note">A <code>LEFT JOIN</code> keeps enrollment rows whose <code>goal_id</code> is <code>NULL</code> — an inner join would silently drop them. Ties directly to the ERD's dashed "guides (optional)" relationship.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>4. Correlated subquery — learners with zero enrollments</h3>
+          <span class="tag lecture">Lecture 7 · Query Processing (subqueries)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Which learners haven't enrolled in a single module yet?</p>
+        <pre><code>SELECT au.full_name, au.email
+  FROM learner l
+  JOIN app_user au ON au.user_id = l.user_id
+ WHERE NOT EXISTS (SELECT 1 FROM enrollment e WHERE e.user_id = l.user_id)
+ ORDER BY au.full_name;</code></pre>
+        <p class="q-note">A correlated <code>NOT EXISTS</code> subquery — re-evaluated per outer row, the classic "rows with no matching child" pattern that a join can't express directly.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>5. Recursive query — the full mentorship chain</h3>
+          <span class="tag lecture">Lecture 3 · ER Modeling (recursive relationship)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Show the entire tutor mentorship hierarchy, indented by depth.</p>
+        <pre><code>SELECT LPAD(' ', 2*(LEVEL-1)) || au.full_name AS mentorship_chain,
+       t.expertise, LEVEL AS depth
+  FROM tutor t
+  JOIN app_user au ON au.user_id = t.user_id
+ START WITH t.mentor_id IS NULL
+CONNECT BY PRIOR t.user_id = t.mentor_id
+ ORDER SIBLINGS BY au.full_name;</code></pre>
+        <p class="q-note">Oracle's <code>CONNECT BY PRIOR</code> walks <code>tutor.mentor_id → tutor.user_id</code> — the self-referencing FK is exactly the recursive relationship the ERD rubric grades by name.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>6. Set operator — everyone tied to one module</h3>
+          <span class="tag lecture">Lecture 6 · Relational Algebra (∪)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">List everyone connected to "SQL Fundamentals" — learners enrolled in it and tutors teaching it — as one combined list.</p>
+        <pre><code>SELECT au.full_name AS person, 'LEARNER' AS role_in_module
+  FROM enrollment e
+  JOIN learner l   ON l.user_id = e.user_id
+  JOIN app_user au ON au.user_id = l.user_id
+  JOIN module m    ON m.module_id = e.module_id
+ WHERE m.module_title = 'SQL Fundamentals'
+UNION
+SELECT au.full_name, 'TUTOR'
+  FROM module_tutor mt
+  JOIN app_user au ON au.user_id = mt.user_id
+  JOIN module m    ON m.module_id = mt.module_id
+ WHERE m.module_title = 'SQL Fundamentals'
+ ORDER BY person;</code></pre>
+        <p class="q-note"><code>UNION</code> combines two differently-sourced row sets (enrolled learners, assigned tutors) into a single relation — the set-union operator from relational algebra, made concrete.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>7. Aggregate + GROUP BY/HAVING — struggling modules</h3>
+          <span class="tag lecture">Lecture 6/7 · Aggregation</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Which modules have more than two learners enrolled but an average progress below 60%?</p>
+        <pre><code>SELECT m.module_title,
+       COUNT(e.user_id) AS enrolled_learners,
+       ROUND(AVG(e.progress_score), 1) AS avg_progress
+  FROM module m
+  JOIN enrollment e ON e.module_id = m.module_id
+ GROUP BY m.module_title
+HAVING COUNT(e.user_id) &gt; 2 AND AVG(e.progress_score) &lt; 60
+ ORDER BY avg_progress;</code></pre>
+        <p class="q-note"><code>HAVING</code> filters on the aggregate itself (average progress), something <code>WHERE</code> can't do since it runs before grouping.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>8. Window function — ranking learners within each module</h3>
+          <span class="tag lecture">Lecture 7 · Query Processing (advanced SQL)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Within each module, who's furthest along?</p>
+        <pre><code>SELECT m.module_title, au.full_name AS learner, e.progress_score,
+       RANK() OVER (PARTITION BY e.module_id ORDER BY e.progress_score DESC) AS rank_in_module
+  FROM enrollment e
+  JOIN module m    ON m.module_id = e.module_id
+  JOIN learner l   ON l.user_id = e.user_id
+  JOIN app_user au ON au.user_id = l.user_id
+ ORDER BY m.module_title, rank_in_module;</code></pre>
+        <p class="q-note"><code>RANK() OVER (PARTITION BY ...)</code> — an analytic function computed per module without collapsing rows the way <code>GROUP BY</code> would.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>9. OLAP rollup — progress by difficulty and status</h3>
+          <span class="tag lecture">Lecture 9 · Data Warehouse (OLAP)</span>
+          <span class="tag mode-console">Console</span>
+        </div>
+        <p class="q-question">Average progress by module difficulty and enrollment status, with subtotals per difficulty and a grand total.</p>
+        <pre><code>SELECT m.difficulty, e.status,
+       ROUND(AVG(e.progress_score), 1) AS avg_progress,
+       COUNT(*) AS enrollments
+  FROM enrollment e
+  JOIN module m ON m.module_id = e.module_id
+ GROUP BY ROLLUP(m.difficulty, e.status)
+ ORDER BY m.difficulty NULLS LAST, e.status NULLS LAST;</code></pre>
+        <p class="q-note"><code>GROUP BY ROLLUP(...)</code> produces multi-level subtotals in one pass — the same OLAP roll-up operation the data warehouse lecture covers, run directly against <code>module</code>/<code>enrollment</code> treated as a mini fact table.</p>
+      </div>
+
+      <div class="query-card card">
+        <div class="query-head">
+          <h3>10. Transaction demo — atomicity via COMMIT/ROLLBACK</h3>
+          <span class="tag lecture">Lecture 5 · Transaction Management (ACID)</span>
+          <span class="tag mode-sqlplus">SQL*Plus / SQL Developer only</span>
+        </div>
+        <p class="q-question">Prove a change is undone in full if the transaction is rolled back — nothing half-applies.</p>
+        <pre><code>-- 1. inspect current progress for one module
+SELECT user_id, progress_score
+  FROM enrollment
+ WHERE module_id = (SELECT module_id FROM module WHERE module_title = 'SQL Fundamentals');
+
+-- 2. bump everyone's progress in that module
+UPDATE enrollment
+   SET progress_score = LEAST(progress_score + 10, 100)
+ WHERE module_id = (SELECT module_id FROM module WHERE module_title = 'SQL Fundamentals');
+
+-- 3. re-run step 1's SELECT here to show the (uncommitted) change
+
+ROLLBACK;
+
+-- 4. re-run step 1's SELECT again -- back to the original values</code></pre>
+        <p class="q-note">Not a rubric requirement for the console (which is deliberately read-only), but the clearest live demonstration of atomicity: the <code>UPDATE</code> is visible mid-transaction, then <code>ROLLBACK</code> discards it completely — nothing the app's own queries ever show on their own.</p>
+      </div>
+    </section>
+
     <section class="doc-section" id="lineage">
-      <h2><span class="num">12</span>Design lineage</h2>
+      <h2><span class="num">13</span>Design lineage</h2>
       <p>
         This app began life as a Django rewrite of an earlier Spring Boot
         (Java) implementation of the same design, which has since been
@@ -866,7 +1340,7 @@ python manage.py runserver</code></pre>
     </section>
 
     <section class="doc-section" id="validation">
-      <h2><span class="num">13</span>Validation performed &amp; known limitations</h2>
+      <h2><span class="num">14</span>Validation performed &amp; known limitations</h2>
       <div class="callout warn">
         <strong>No live Oracle connection was available while building this port.</strong>
         Everything below was validated without one; the actual data path
