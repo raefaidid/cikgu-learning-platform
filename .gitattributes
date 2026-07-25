@@ -1,0 +1,13 @@
+# SQL and shell scripts are fed to Linux tools inside the Oracle container.
+# Windows CRLF endings make SQL*Plus fail on `/` statement terminators, so
+# force LF on checkout regardless of the contributor's platform.
+* text=auto eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+
+*.pdf binary
+*.doc binary
+*.docx binary
+*.png binary
+*.jpg binary

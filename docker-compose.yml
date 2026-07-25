@@ -1,0 +1,25 @@
+services:
+  oracle:
+    image: container-registry.oracle.com/database/free:latest-lite
+    container_name: ${ORACLE_CONTAINER_NAME:-cikgu-oracle}
+    restart: unless-stopped
+    working_dir: /opt/oracle/schemas/cikgu
+    ports:
+      - "${ORACLE_HOST_PORT:-1521}:1521"
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD:?Set ORACLE_PWD in .env (copy .env.example to .env)}
+    volumes:
+      - cikgu-oracle-data:/opt/oracle/oradata
+      - ./db:/opt/oracle/schemas/cikgu
+    # The image's own readiness probe. Do not swap this for a `sqlplus` call:
+    # without -L, sqlplus exits 0 even when the logon is refused, so the
+    # container reports healthy minutes before the database accepts connections.
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 15s
+      timeout: 30s
+      retries: 40
+      start_period: 3m
+
+volumes:
+  cikgu-oracle-data:
