@@ -35,13 +35,15 @@ design working end-to-end, not the other way around.
 
 ## What this repository contains
 
-This project has two halves, kept in the two locations the course expects:
+This project has two halves:
 
 ```
-schema/cikgu/                          ← the database: DDL, seed data, 10 ad hoc queries
-projects/ICT502_GROUP/
-├── docs/                              ← YOU ARE HERE — proposal, rubrics, technical guide
-└── src/cikgu-app-django/              ← the web application (Python + Django)
+db/                     ← the database: DDL, seed data, 10 ad hoc queries
+docs/                   ← proposal, rubrics, technical guide
+src/cikgu-app-django/   ← the web application (Python + Django)
+docker-compose.yml      ← the Oracle 23ai Free container both halves run against
+scripts/setup.ps1       ← one-command setup (Windows)
+scripts/setup.sh        ← one-command setup (macOS / Linux)
 ```
 
 The web app is hand-written-SQL only (no ORM), points at the `CIKGU` Oracle
@@ -53,23 +55,54 @@ reporting view, and an ad hoc SQL console.
 | Read this... | ...if you want to |
 |---|---|
 | [`docs/index.html`](docs/index.html) | Understand the tech stack from scratch, run the system locally, and see what every page does (with a suggested presentation script) — HTML, open it in a browser |
-| [`../../schema/cikgu/README.md`](../../schema/cikgu/README.md) | Install/uninstall the database schema directly |
-| [`../../schema/cikgu/data_dictionary.md`](../../schema/cikgu/data_dictionary.md) | Table/column reference for the report appendix |
+| [`db/README.md`](db/README.md) | Install/uninstall the database schema directly |
+| [`db/data_dictionary.md`](db/data_dictionary.md) | Table/column reference for the report appendix |
 | [`src/cikgu-app-django/README.md`](src/cikgu-app-django/README.md) | Run the web app |
 | `docs/project_description.pdf`, `docs/project_rubrics.pdf` | The lecturer's official assignment brief and grading rubrics |
 | `docs/CHCECKED Cikgu Personalized Learning Platform ICT502_GROUP_3_PROPOSAL.pdf` | Our graded proposal (company background, problem statement, objectives, original ERD) |
 
 ## Quick start
 
+You need **Docker Desktop** and **Python 3.11+**. You do *not* need to install
+Oracle, an Oracle client, or SQL Developer — the database runs in Docker and
+the app talks to it in pure Python.
+
+### 1. Set up the database
+
+Clone the repository, then from its root run the setup script for your OS. It
+starts Oracle, waits for it to be ready, and installs the schema with seed data.
+
+**Windows (PowerShell)**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+```
+
+**macOS / Linux**
+
 ```bash
-# 1. Start Oracle (from the repository root)
-./scripts/oracle23ai.sh start
+./scripts/setup.sh
+```
 
-# 2. Install the schema
-docker exec -w /opt/oracle/schemas/cikgu oracle23ai \
-  sqlplus system/admin123@//localhost:1521/FREEPDB1 @cikgu_install.sql
+The first run downloads a ~2 GB image and takes **5–15 minutes** — Oracle is
+slow to start the first time. The script prints `Database is ready.` when it
+has finished. Later runs take a few seconds.
 
-# 3. Run the app
+### 2. Run the app
+
+**Windows (PowerShell)**
+
+```powershell
+cd src\cikgu-app-django
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python manage.py runserver
+```
+
+**macOS / Linux**
+
+```bash
 cd src/cikgu-app-django
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -78,8 +111,28 @@ python manage.py runserver
 
 Open **http://localhost:8000** and log in with any seeded account — password
 `password123` for all of them (e.g. `halim.abdullah@cikgu.my`). Full
-instructions, troubleshooting, and login options are in
-[`docs/index.html`](docs/index.html).
+instructions and login options are in [`docs/index.html`](docs/index.html).
+
+### Everyday commands
+
+| Task | Command (from the repository root) |
+|---|---|
+| Stop the database | `docker compose stop` |
+| Start it again | `docker compose start` |
+| Reset the demo data | re-run the setup script |
+| Wipe everything and start over | `docker compose down -v`, then re-run setup |
+| See what the database is doing | `docker compose logs -f` |
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `docker: command not found` / "Docker daemon is not running" | Install Docker Desktop and wait until it reports *Engine running*. On Windows it needs the WSL 2 backend. |
+| `port is already allocated` | Something else uses port 1521. Set `ORACLE_HOST_PORT=1522` in `.env`, re-run setup, and start the app with `$env:CIKGU_DB_PORT='1522'` (PowerShell) or `export CIKGU_DB_PORT=1522`. |
+| `ORA-01017: invalid credential` | The container was created with a different password than the one now in `.env`. Run `docker compose down -v` and re-run setup. |
+| Setup times out waiting for health | Give Docker Desktop more memory (Settings → Resources → at least 4 GB) and re-run. Check progress with `docker compose logs -f`. |
+| `ORA-12541`/`could not connect` from Django | The database isn't running. `docker compose start`, wait for `docker ps` to show *healthy*. |
+| `scripts\setup.ps1 cannot be loaded because running scripts is disabled` | Use the `-ExecutionPolicy Bypass` form shown above. |
 
 ## Tech stack at a glance
 
@@ -104,7 +157,7 @@ Seven tables built around the entities the course rubric grades by name:
 - **Sequence + trigger surrogate keys**, FK indexes, a `BEFORE UPDATE` audit
   trigger, and a reporting view (`module_progress_v`) backing the dashboard.
 
-Full column-level detail: [`schema/cikgu/data_dictionary.md`](../../schema/cikgu/data_dictionary.md).
+Full column-level detail: [`db/data_dictionary.md`](db/data_dictionary.md).
 
 ## Scope
 

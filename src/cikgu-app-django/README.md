@@ -8,7 +8,7 @@ through `django.db.connection` cursors (see `cikguapp/db.py` and
 small session-based auth layer (`cikguapp/auth.py`) that queries `app_user`
 directly and checks bcrypt hashes, and sessions are signed cookies, so this
 app never creates or manages a single database table beyond what
-`schema/cikgu/cikgu_install.sql` already created.
+[`db/cikgu_install.sql`](../../db/cikgu_install.sql) already created.
 
 For the full architecture writeup (request lifecycle, data-access layer,
 auth design, page-by-page walkthrough, demo script), see
@@ -17,18 +17,29 @@ auth design, page-by-page walkthrough, demo script), see
 ## Prerequisites
 
 1. Python 3.11+.
-2. The repository's Oracle 23ai Free container running: `./scripts/oracle23ai.sh start` (repo root).
-3. The CIKGU schema installed — see `schema/cikgu/README.md`:
+2. The database running with the CIKGU schema installed. From the repository
+   root, one command does both — `scripts\setup.ps1` on Windows,
+   `./scripts/setup.sh` on macOS/Linux. See the [repository README](../../README.md).
 
-   ```
-   docker exec -w /opt/oracle/schemas/cikgu oracle23ai \
-     sqlplus system/<ORACLE_PWD>@//localhost:1521/FREEPDB1 @cikgu_install.sql
-   ```
+No Oracle client installation is needed: `python-oracledb` connects in thin
+mode, which is pure Python.
 
 ## Run
 
+**Windows (PowerShell)**
+
+```powershell
+cd src\cikgu-app-django
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python manage.py runserver
 ```
-cd projects/ICT502_GROUP/src/cikgu-app-django
+
+**macOS / Linux**
+
+```bash
+cd src/cikgu-app-django
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py runserver
